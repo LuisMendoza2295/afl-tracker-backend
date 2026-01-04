@@ -1,0 +1,6 @@
+# Maven
+target/
+
+# Visual Studio Code
+.vscode
+.factorypath

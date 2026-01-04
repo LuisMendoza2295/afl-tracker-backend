@@ -2,9 +2,6 @@
 .gradle/
 build/
 
-# Maven
-target/
-
 # Eclipse
 .project
 .classpath
