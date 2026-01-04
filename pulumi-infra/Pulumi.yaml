@@ -1,0 +1,7 @@
+name: afl-tracker-backend
+description: A minimal Google Cloud Java Pulumi program
+runtime: java
+config:
+  pulumi:tags:
+    value:
+      pulumi:template: gcp-java
