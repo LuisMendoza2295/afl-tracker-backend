@@ -1,7 +1,6 @@
 package com.afl.tracker;
 
 import com.pulumi.Pulumi;
-import com.pulumi.core.Output;
 import com.pulumi.gcp.storage.Bucket;
 import com.pulumi.gcp.storage.BucketArgs;
 
