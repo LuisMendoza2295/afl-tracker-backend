@@ -6,6 +6,9 @@
 		{
 			"name": "afl-tracker",
 			"path": "afl-tracker"
+		},
+		{
+			"path": ".github"
 		}
 	],
 	"settings": {
