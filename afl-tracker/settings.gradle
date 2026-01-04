@@ -8,4 +8,4 @@ pluginManagement {
         id "${quarkusPluginId}" version "${quarkusPluginVersion}"
     }
 }
-rootProject.name='afl-tracker-backend'
+rootProject.name='afl-tracker'

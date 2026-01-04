@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "pulumi-infra"
+		},
+		{
+			"name": "afl-tracker",
+			"path": "afl-tracker"
+		}
+	],
+	"settings": {
+		"java.configuration.updateBuildConfiguration": "automatic"
+	}
+}
