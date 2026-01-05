@@ -29,3 +29,14 @@ jobs:
             - name: Build with Gradle
               run: ./gradlew build
               working-directory: ./afl-tracker
+
+            - name: Login to Artifact Registry
+              run: gcloud auth configure-docker ${{ vars.GCP_REGION }}-docker.pkg.dev
+
+            - name: Build and Push Docker Image
+              env:
+                  IMAGE_NAME: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-repo/gh-actions-demo
+              run: |
+                    docker build -f src/main/docker/Dockerfile.native-micro -t $IMAGE_NAME:$GITHUB_SHA -t $IMAGE_NAME:latest .
+                    docker push $IMAGE_NAME:$GITHUB_SHA
+              working-directory: ./afl-tracker
