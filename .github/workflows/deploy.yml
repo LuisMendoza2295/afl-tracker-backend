@@ -39,7 +39,7 @@ jobs:
 
             - name: Build and Push Docker Image
               env:
-                  IMAGE_NAME: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/demo-repo/gh-actions-demo
+                  IMAGE_NAME: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ secrets.GCP_PROJECT_ID }}/afl-tracker-repo/afl-tracker-backend
               run: |
                     ls -lh build/
                     docker build \

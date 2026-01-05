@@ -1,17 +1,19 @@
 package com.afl.tracker;
 
 import com.pulumi.Pulumi;
-import com.pulumi.gcp.storage.Bucket;
-import com.pulumi.gcp.storage.BucketArgs;
+import com.pulumi.gcp.artifactregistry.Repository;
+import com.pulumi.gcp.artifactregistry.RepositoryArgs;
 
 public class App {
     public static void main(String[] args) {
         Pulumi.run(ctx -> {
-            var bucket = new Bucket("my-bucket",
-                                    BucketArgs.builder()
-                                    .location("US")
-                                    .build());
-            ctx.export("bucketName", bucket.url());
+            var artifactRepository = new Repository("afl-tracker-repo", RepositoryArgs.builder()
+                    .location("us-east1")
+                    .repositoryId("afl-tracker-repo")
+                    .format("DOCKER")
+                    .build());
+            
+            ctx.export("registry-uri", artifactRepository.registryUri());
         });
     }
 }
