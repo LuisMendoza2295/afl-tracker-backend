@@ -108,13 +108,15 @@ public class App {
 
             // 9. Define Cloud Run v2 Service
             String cloudRunServiceName = "cloud-run-v2-service";
+            Output<String> latestImage = artifactRepository.registryUri().applyValue(uri -> uri + "/afl-tracker-backend:latest");
+            Output<String> appImage = ctx.config().get("app-image").map(Output::of).orElse(latestImage);
             var cloudRunService = new com.pulumi.gcp.cloudrunv2.Service(cloudRunServiceName, com.pulumi.gcp.cloudrunv2.ServiceArgs.builder()
                     .name("afl-tracker-backend-service")
                     .location(region)
                     .ingress("INGRESS_TRAFFIC_ALL")
                     .template(com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateArgs.builder()
                             .containers(com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateContainerArgs.builder()
-                                    .image(ctx.config().require("app-image"))
+                                    .image(appImage)
                                     .ports(ServiceTemplateContainerPortsArgs.builder()
                                         .containerPort(8080)
                                         .build())

@@ -1,4 +1,3 @@
 config:
   gcp:project: afl-tracker-482307
   gcp:region: us-east1
-  app-image: ""
