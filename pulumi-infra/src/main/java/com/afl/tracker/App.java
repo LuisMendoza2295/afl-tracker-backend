@@ -6,6 +6,7 @@ import com.pulumi.Pulumi;
 import com.pulumi.core.Output;
 import com.pulumi.gcp.artifactregistry.Repository;
 import com.pulumi.gcp.artifactregistry.RepositoryArgs;
+import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateContainerPortsArgs;
 import com.pulumi.gcp.iam.WorkloadIdentityPool;
 import com.pulumi.gcp.iam.WorkloadIdentityPoolArgs;
 import com.pulumi.gcp.iam.WorkloadIdentityPoolProvider;
@@ -88,6 +89,39 @@ public class App {
             ctx.export("WIF_PROVIDER", githubProvider.name());
             ctx.export("WIF_SERVICE_ACCOUNT", deployServiceAccount.email());
             ctx.export("REPOSITORY_URL", artifactRepository.name().applyValue(name -> String.format("%s-docker.pkg.dev/%s/%s", region, projectId, artifactoryRepoName)));
+
+            // 7. Grant Cloud Run Developer Role to Service Account
+            String cloudRunDeployerName = "sa-cloud-run-deployer";
+            var cloudRunDeployer = new com.pulumi.gcp.projects.IAMMember(cloudRunDeployerName, com.pulumi.gcp.projects.IAMMemberArgs.builder()
+                    .project(projectId)
+                    .role("roles/run.developer")
+                    .member(deployServiceAccount.email().applyValue(email -> "serviceAccount:" + email))
+                    .build());
+                
+            // 8. Grant Service Account User Role to Service Account
+            String serviceAccountDeployUserName = "sa-deploy-user";
+            var serviceAccountDeployUser = new com.pulumi.gcp.projects.IAMMember(serviceAccountDeployUserName, com.pulumi.gcp.projects.IAMMemberArgs.builder()
+                    .project(projectId)
+                    .role("roles/iam.serviceAccountUser")
+                    .member(deployServiceAccount.email().applyValue(email -> "serviceAccount:" + email))
+                    .build());
+
+            // 9. Define Cloud Run v2 Service
+            String cloudRunServiceName = "cloud-run-v2-service";
+            var cloudRunService = new com.pulumi.gcp.cloudrunv2.Service(cloudRunServiceName, com.pulumi.gcp.cloudrunv2.ServiceArgs.builder()
+                    .name("afl-tracker-backend-service")
+                    .location(region)
+                    .ingress("INGRESS_TRAFFIC_ALL")
+                    .template(com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateArgs.builder()
+                            .containers(com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateContainerArgs.builder()
+                                    .image(ctx.config().require("app-image"))
+                                    .ports(ServiceTemplateContainerPortsArgs.builder()
+                                        .containerPort(8080)
+                                        .build())
+                                    .build())
+                            .build())
+                    .build());
+            ctx.export("CLOUD_RUN_URL", cloudRunService.uri());
         });
     }
 }
