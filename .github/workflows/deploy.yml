@@ -61,7 +61,7 @@ jobs:
             - name: Pulumi Deploy
               uses: pulumi/actions@v6
               with:
-                  command: up --yes
+                  command: up
                   stack-name: dev
                   work-dir: ./pulumi-infra
               env:
