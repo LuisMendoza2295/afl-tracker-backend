@@ -119,6 +119,12 @@ jobs:
             workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
             service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
 
+        - name: Copy Maven settings.xml
+          working-directory: ./pulumi-infra
+          run: |
+            mkdir -p ~/.m2
+            cp settings.xml ~/.m2/settings.xml
+
         - name: Pulumi Deploy
           uses: pulumi/actions@v6
           with:
