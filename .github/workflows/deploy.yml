@@ -41,6 +41,8 @@ jobs:
       permissions:
         contents: read
         id-token: write
+      outputs:
+        image_uri: ${{ steps.push_step.outputs.IMAGE_URI }}
       
       steps:
         - name: Check out repository code
@@ -73,6 +75,7 @@ jobs:
               password: ${{ steps.gcloud-auth.outputs.access_token }}
 
         - name: Build and Push Docker Image
+          id: push_step
           env:
               IMAGE_NAME: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/afl-tracker-repo/afl-tracker-backend
           run: |
