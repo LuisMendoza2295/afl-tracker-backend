@@ -37,6 +37,9 @@ jobs:
         id-token: write
       
       steps:
+        - name: Check out repository code
+          uses: actions/checkout@v4
+
         - name: Authenticate to Google Cloud
           id: gcloud-auth
           uses: google-github-actions/auth@v2
@@ -76,6 +79,9 @@ jobs:
         id-token: write
 
       steps:
+        - name: Check out repository code
+          uses: actions/checkout@v4
+
         - name: Check image URI
           run: |
             if [ -z "${{ needs.build-and-push-image.outputs.image_uri }}" ]; then
@@ -84,7 +90,6 @@ jobs:
             else
               echo "IMAGE_URI is set to: ${{ needs.build-and-push-image.outputs.image_uri }}"
             fi
-            
 
         - name: Authenticate to Google Cloud
           id: gcloud-auth
