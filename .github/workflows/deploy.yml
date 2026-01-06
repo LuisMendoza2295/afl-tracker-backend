@@ -27,6 +27,12 @@ jobs:
                         -Dquarkus.native.container-build=true \
                         -Dquarkus.package.jar.enabled=false
               working-directory: ./afl-tracker
+            
+            - name: Native runner artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: native-runner
+                  path: ./afl-tracker/build/afl-tracker-1.0.0-SNAPSHOT-runner
 
     build-and-push-image:
       runs-on: ubuntu-latest
@@ -39,6 +45,17 @@ jobs:
       steps:
         - name: Check out repository code
           uses: actions/checkout@v4
+
+        - name: Download native runner artifact
+          uses: actions/download-artifact@v4
+          with:
+              name: native-runner
+              path: ./afl-tracker/build
+
+        # Ensure the downloaded file has execution permissions
+        - name: Fix Permissions
+          run: chmod +x build/*-runner
+          working-directory: ./afl-tracker
 
         - name: Authenticate to Google Cloud
           id: gcloud-auth
