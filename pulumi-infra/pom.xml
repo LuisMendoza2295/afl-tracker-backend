@@ -17,17 +17,6 @@
         <mainArgs/>
     </properties>
 
-    <settings>
-        <mirrors>
-            <mirror>
-            <id>google-maven-central</id>
-            <name>Google Maven Central</name>
-            <url>maven-central.storage-download.googleapis.com</url>
-            <mirrorOf>central</mirrorOf>
-            </mirror>
-        </mirrors>
-    </settings>
-
     <dependencies>
         <dependency>
             <groupId>com.pulumi</groupId>

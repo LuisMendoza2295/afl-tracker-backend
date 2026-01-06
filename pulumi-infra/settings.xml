@@ -1,0 +1,12 @@
+<settings xmlns="maven.apache.org"
+          xmlns:xsi="www.w3.org"
+          xsi:schemaLocation="maven.apache.org maven.apache.org">
+    <mirrors>
+        <mirror>
+            <id>google-maven-central</id>
+            <name>Google Maven Central</name>
+            <url>maven-central.storage-download.googleapis.com</url>
+            <mirrorOf>central</mirrorOf>
+        </mirror>
+    </mirrors>
+</settings>
