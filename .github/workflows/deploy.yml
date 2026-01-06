@@ -1,38 +1,38 @@
 name: AFL Tracker Backend CI/CD
-run-name: Build demo app 🚀
+run-name: Build AFL tracker backend 🚀
 on: [push]
 jobs:
     build-and-test:
-        runs-on: ubuntu-latest
-        environment: dev
-        permissions:
-          contents: read
-          id-token: write
+      runs-on: ubuntu-latest
+      environment: dev
+      permissions:
+        contents: read
+        id-token: write
 
-        steps:
-            - name: Check out repository code
-              uses: actions/checkout@v4
+      steps:
+        - name: Check out repository code
+          uses: actions/checkout@v4
 
-            - name: Setup jdk 21
-              uses: actions/setup-java@v4
-              with:
-                  java-version: '21'
-                  distribution: 'temurin'
-                  cache: 'gradle'
-            
-            - name: Build with Gradle
-              run: |
-                    ./gradlew build \
-                        -Dquarkus.native.enabled=true \
-                        -Dquarkus.native.container-build=true \
-                        -Dquarkus.package.jar.enabled=false
-              working-directory: ./afl-tracker
-            
-            - name: Native runner artifact
-              uses: actions/upload-artifact@v4
-              with:
-                  name: native-runner
-                  path: ./afl-tracker/build/afl-tracker-1.0.0-SNAPSHOT-runner
+        - name: Setup jdk 21 for build
+          uses: actions/setup-java@v4
+          with:
+              java-version: '21'
+              distribution: 'temurin'
+              cache: 'gradle'
+        
+        - name: Build with Gradle
+          run: |
+                ./gradlew build \
+                    -Dquarkus.native.enabled=true \
+                    -Dquarkus.native.container-build=true \
+                    -Dquarkus.package.jar.enabled=false
+          working-directory: ./afl-tracker
+        
+        - name: Native runner artifact
+          uses: actions/upload-artifact@v4
+          with:
+              name: native-runner
+              path: ./afl-tracker/build/afl-tracker-1.0.0-SNAPSHOT-runner
 
     build-and-push-image:
       runs-on: ubuntu-latest
@@ -54,7 +54,6 @@ jobs:
               name: native-runner
               path: ./afl-tracker/build
 
-        # Ensure the downloaded file has execution permissions
         - name: Fix Permissions
           run: chmod +x build/*-runner
           working-directory: ./afl-tracker
@@ -101,6 +100,13 @@ jobs:
       steps:
         - name: Check out repository code
           uses: actions/checkout@v4
+
+        - name: Setup jdk 21 for Pulumi
+          uses: actions/setup-java@v4
+          with:
+              java-version: '21'
+              distribution: 'temurin'
+              cache: 'gradle'
 
         - name: Check image URI
           run: |
