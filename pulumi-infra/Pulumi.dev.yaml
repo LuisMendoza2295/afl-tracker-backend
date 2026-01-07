@@ -1,6 +1,8 @@
 config:
   gcp:project: afl-tracker-482307
   gcp:region: us-east1
-  storageBucketName: afl-tracker-storage-bucket
-  artifactoryRepoName: afl-tracker-repo
-  cloudRunServiceName: afl-tracker-backend-service
+  afl-tracker-backend:artifactoryRepoName: afl-tracker-repo
+  afl-tracker-backend:cloudRunServiceName: afl-tracker-backend-service
+  afl-tracker-backend:infra-sa-email:
+    secure: AAABAJKget1yo5+XdVU4yye4s9gk0Fklz8tAUNg5GRanzYqi0dcINBw762kYKzXSaHl/wdn7mGakiCszKt0M4L7ln2Pi3UYbCvMU1GxGlFEBnsfCL4Ci
+  afl-tracker-backend:storageBucketName: afl-tracker-storage-bucket

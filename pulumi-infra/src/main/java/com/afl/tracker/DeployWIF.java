@@ -1,4 +1,4 @@
-package com.afl.tracker.iam;
+package com.afl.tracker;
 
 import java.util.Map;
 
