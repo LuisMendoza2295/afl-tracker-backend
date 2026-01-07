@@ -27,9 +27,10 @@ public class TrackerResource {
 
     @GET
     @Path("/images")
-    public List<String> getImages() {
+    @Produces(MediaType.APPLICATION_JSON)
+    public Response getImages() {
         List<String> images = trackerService.getImages();
-        return images;
+        return Response.ok().entity(images).build();
     }
 
     @POST

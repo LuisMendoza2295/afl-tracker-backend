@@ -14,6 +14,8 @@ dependencies {
 
     implementation("io.quarkus:quarkus-rest")
 
+    implementation("io.quarkus:quarkus-rest-jackson")
+
     implementation 'io.quarkus:quarkus-arc'
     implementation 'io.quarkiverse.googlecloudservices:quarkus-google-cloud-storage'
     testImplementation 'io.quarkus:quarkus-junit5'
