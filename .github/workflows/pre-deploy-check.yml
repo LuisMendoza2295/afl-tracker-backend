@@ -3,6 +3,8 @@ run-name: Pre-deploy checks for AFL tracker backend by @${{ github.actor }}
 on:
   workflow_run:
     workflows: ["build-test-and-push-image"]
+    types:
+      - completed
 jobs:
     pre-deploy-check:
       runs-on: ubuntu-latest
