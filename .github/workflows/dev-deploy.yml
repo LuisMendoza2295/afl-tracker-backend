@@ -7,9 +7,6 @@ on:
           description: 'Deploy to dev environment?'
           required: true
           default: 'false'
-    push:
-      branches:
-        - main
 jobs:
     deploy-to-dev:
       runs-on: ubuntu-latest
