@@ -137,7 +137,6 @@ jobs:
               command: up
               stack-name: dev
               work-dir: ./pulumi-infra
-              refresh: true
           env:
               PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
               GCP_ACCESS_TOKEN: ${{ steps.gcloud-auth.outputs.access_token }}
