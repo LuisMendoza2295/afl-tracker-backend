@@ -8,7 +8,8 @@ import com.pulumi.gcp.storage.BucketIAMMemberArgs;
 public class BucketIAM {
 
   public static BucketIAMMember grantRoleToSA(Bucket storageBucket, Account deploySA) {
-    var bucketIamMember = new BucketIAMMember(storageBucket.name() + "-iam-member",
+    var bucketIamMemberName = storageBucket.name().applyValue(name -> name + "-iam-member");
+    var bucketIamMember = new BucketIAMMember(bucketIamMemberName.toString(),
         BucketIAMMemberArgs.builder()
             .bucket(storageBucket.name())
             .role("roles/storage.admin")

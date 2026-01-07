@@ -1,0 +1,43 @@
+name: AFL Tracker Backend Pre-Deploy Check
+run-name: Pre-deploy checks for AFL tracker backend by @${{ github.actor }}
+on: [push]
+jobs:
+    pre-deploy-check:
+      runs-on: ubuntu-latest
+      environment: dev
+      permissions:
+        contents: read
+        id-token: write
+
+      steps:
+        - name: Check out repository code
+          uses: actions/checkout@v4
+
+        - name: Setup jdk 21 for Pre-deploy Check
+          uses: actions/setup-java@v4
+          with:
+              java-version: '21'
+              distribution: 'temurin'
+              cache: 'gradle'
+        
+        - name: Authenticate to Google Cloud
+          id: gcloud-auth
+          uses: google-github-actions/auth@v2
+          with:
+            token_format: 'access_token'
+            workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+            service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+        - name: Pulumi Pre-Deploy Check (Preview)
+          uses: pulumi/actions@v6
+          with:
+              command: preview
+              stack-name: dev
+              work-dir: ./pulumi-infra
+          env:
+              PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+              GCP_ACCESS_TOKEN: ${{ steps.gcloud-auth.outputs.access_token }}
+              PULUMI_CONFIG_PASSTHROUGH: | 
+                gcp:project=${{ vars.GCP_PROJECT_ID }},\
+                gcp:region=${{ vars.GCP_REGION }},\
+                app-image=${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/afl-tracker-repo/afl-tracker-backend:${GITHUB_SHA}

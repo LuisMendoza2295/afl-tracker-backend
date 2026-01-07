@@ -24,18 +24,20 @@ public class App {
 
       // Create Service Account for Deployment
       var deploySA = createServiceAccountForDeploy();
+      String setIamPolicyRole = "roles/run.services.setIamPolicy";
+      grantRoleToSA(ctx, "set-iam-policy", setIamPolicyRole, deploySA);
 
       var artifactRepository = ArtifactRepository.createArtifactRepository(ctx, deploySA);
       String artifactRegistryWriterName = "sa-registry-writer";
       String role = "roles/artifactregistry.writer";
-      var artifactRegistryWriter = grantRoleToSA(ctx, artifactRegistryWriterName, role, deploySA);
+      grantRoleToSA(ctx, artifactRegistryWriterName, role, deploySA);
 
       // Workload Identity Federation Setup
       var githubPool = createWorkloadIdentityPool();
       var githubProvider = createWorkloadIdentityProvider(githubPool, githubRepo);
 
       // Service Account IAM role for token impersonation
-      var saImpersonationRole = createSAImpersonationForPool(githubPool, githubRepo, deploySA);
+      createSAImpersonationForPool(githubPool, githubRepo, deploySA);
 
       // Export WIF info
       ctx.export("WIF_PROVIDER", githubProvider.name());
@@ -53,13 +55,12 @@ public class App {
       // Grant additional roles to the deploy SA for Cloud Run deployment
       String cloudRunDeployerName = "sa-cloud-run-deployer";
       String cloudRunDeployRole = "roles/run.developer";
-      var cloudRunDeployer = grantRoleToSA(ctx, cloudRunDeployerName, cloudRunDeployRole, deploySA);
+      grantRoleToSA(ctx, cloudRunDeployerName, cloudRunDeployRole, deploySA);
       String serviceAccountDeployUserName = "sa-deploy-user";
       String saUserDeployRole = "roles/iam.serviceAccountUser";
-      var serviceAccountDeployUser = grantRoleToSA(ctx, serviceAccountDeployUserName, saUserDeployRole, deploySA);
+      grantRoleToSA(ctx, serviceAccountDeployUserName, saUserDeployRole, deploySA);
 
       // Define Cloud Run v2 Service
-      String cloudRunServiceName = "cloud-run-v2-service";
       Output<String> latestImage = artifactRepository.registryUri()
           .applyValue(uri -> uri + "/afl-tracker-backend:latest");
       Output<String> appImage = ctx.config().get("app-image").map(Output::of).orElse(latestImage);
