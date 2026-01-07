@@ -1,17 +1,12 @@
-name: dev-deploy
-run-name: Deploy AFL tracker backend by @${{ github.actor }} 🚀
-on: 
-    workflow_dispatch:
-      inputs:
-        deploy:
-          description: 'Deploy to dev environment?'
-          required: true
-          default: 'false'
-    push:
-      branches:
-        - main
+name: pre-deploy-check
+run-name: Pre-deploy checks for AFL tracker backend by @${{ github.actor }}
+on:
+  workflow_run:
+    workflows: ["build-test-and-push-image"]
+    types:
+      - completed
 jobs:
-    deploy-to-dev:
+    pre-deploy-check:
       runs-on: ubuntu-latest
       environment: dev
       permissions:
@@ -22,13 +17,13 @@ jobs:
         - name: Check out repository code
           uses: actions/checkout@v4
 
-        - name: Setup jdk 21 for Pulumi
+        - name: Setup jdk 21 for Pre-deploy Check
           uses: actions/setup-java@v4
           with:
               java-version: '21'
               distribution: 'temurin'
               cache: 'gradle'
-
+        
         - name: Authenticate to Google Cloud
           id: gcloud-auth
           uses: google-github-actions/auth@v2
@@ -37,16 +32,10 @@ jobs:
             workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
             service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
 
-        - name: Copy Maven settings.xml
-          working-directory: ./pulumi-infra
-          run: |
-            mkdir -p ~/.m2
-            cp settings.xml ~/.m2/settings.xml
-
-        - name: Pulumi Deploy
+        - name: Pulumi Pre-Deploy Check (Preview)
           uses: pulumi/actions@v6
           with:
-              command: up
+              command: preview
               stack-name: dev
               work-dir: ./pulumi-infra
           env:
