@@ -1,5 +1,5 @@
-name: AFL Tracker Backend CI/CD
-run-name: Build AFL tracker backend 🚀
+name: AFL Tracker Backend Build
+run-name: Build AFL tracker backend by @{{ github.actor }} 🚀
 on: [push]
 jobs:
     build-and-test:
@@ -88,56 +88,3 @@ jobs:
                 docker push $IMAGE_NAME:latest
                 echo "IMAGE_URI=$IMAGE_NAME:$GITHUB_SHA" >> "$GITHUB_OUTPUT"
           working-directory: ./afl-tracker
-    
-    pulumi-deploy:
-      runs-on: ubuntu-latest
-      needs: build-and-push-image
-      environment: dev
-      permissions:
-        contents: read
-        id-token: write
-
-      steps:
-        - name: Check out repository code
-          uses: actions/checkout@v4
-
-        - name: Setup jdk 21 for Pulumi
-          uses: actions/setup-java@v4
-          with:
-              java-version: '21'
-              distribution: 'temurin'
-              cache: 'gradle'
-
-        - name: Check image URI
-          run: |
-            if [ -z "${{ needs.build-and-push-image.outputs.image_uri }}" ]; then
-              echo "Error: IMAGE_URI is not set!"
-              exit 1
-            else
-              echo "IMAGE_URI is set to: ${{ needs.build-and-push-image.outputs.image_uri }}"
-            fi
-
-        - name: Authenticate to Google Cloud
-          id: gcloud-auth
-          uses: google-github-actions/auth@v2
-          with:
-            token_format: 'access_token'
-            workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
-            service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
-
-        - name: Copy Maven settings.xml
-          working-directory: ./pulumi-infra
-          run: |
-            mkdir -p ~/.m2
-            cp settings.xml ~/.m2/settings.xml
-
-        - name: Pulumi Deploy
-          uses: pulumi/actions@v6
-          with:
-              command: up
-              stack-name: dev
-              work-dir: ./pulumi-infra
-          env:
-              PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-              GCP_ACCESS_TOKEN: ${{ steps.gcloud-auth.outputs.access_token }}
-              PULUMI_CONFIG_PASSTHROUGH: gcp:project=${{ vars.GCP_PROJECT_ID }},gcp:region=${{ vars.GCP_REGION }},app-image=${{ needs.build-and-push-image.outputs.image_uri }}
