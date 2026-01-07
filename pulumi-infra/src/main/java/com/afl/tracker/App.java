@@ -8,6 +8,7 @@ import com.pulumi.core.Output;
 import com.pulumi.gcp.artifactregistry.Repository;
 import com.pulumi.gcp.artifactregistry.RepositoryArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateContainerPortsArgs;
+import com.pulumi.gcp.cloudrunv2.inputs.ServiceTrafficArgs;
 import com.pulumi.gcp.iam.WorkloadIdentityPool;
 import com.pulumi.gcp.iam.WorkloadIdentityPoolArgs;
 import com.pulumi.gcp.iam.WorkloadIdentityPoolProvider;
@@ -157,6 +158,10 @@ public class App {
                                 .containerPort(8080)
                                 .build())
                                 .build())
+                        .build())
+                .traffics(ServiceTrafficArgs.builder()
+                        .type("TRAFFIC_TARGET_ALLOCATION_TYPE_LATEST")
+                        .percent(100)
                         .build())
                 .build());
         return cloudRunService;
