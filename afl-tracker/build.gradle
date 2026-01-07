@@ -10,10 +10,12 @@ repositories {
 
 dependencies {
     implementation enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}")
+    implementation platform("io.quarkiverse.googlecloudservices:quarkus-google-cloud-services-bom:${googleCloudServicesVersion}")
 
     implementation("io.quarkus:quarkus-rest")
 
     implementation 'io.quarkus:quarkus-arc'
+    implementation 'io.quarkiverse.googlecloudservices:quarkus-google-cloud-storage'
     testImplementation 'io.quarkus:quarkus-junit5'
 }
 

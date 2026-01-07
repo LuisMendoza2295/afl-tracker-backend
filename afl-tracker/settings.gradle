@@ -1,11 +1,18 @@
 pluginManagement {
     repositories {
+        maven { url "maven-central.storage-download.googleapis.com" }
         mavenCentral()
         gradlePluginPortal()
         mavenLocal()
     }
     plugins {
         id "${quarkusPluginId}" version "${quarkusPluginVersion}"
+    }
+}
+dependencyResolutionManagement {
+    repositories {
+        maven { url "maven-central.storage-download.googleapis.com" }
+        mavenCentral()
     }
 }
 rootProject.name='afl-tracker'

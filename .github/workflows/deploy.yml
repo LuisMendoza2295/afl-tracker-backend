@@ -1,70 +1,143 @@
-name: GitHub Actions Demo
-run-name: Build demo app 🚀
+name: AFL Tracker Backend CI/CD
+run-name: Build AFL tracker backend 🚀
 on: [push]
 jobs:
-    build:
-        runs-on: ubuntu-latest
-        environment: dev
-        permissions:
-          contents: read
-          id-token: write
+    build-and-test:
+      runs-on: ubuntu-latest
+      environment: dev
+      permissions:
+        contents: read
+        id-token: write
+
+      steps:
+        - name: Check out repository code
+          uses: actions/checkout@v4
+
+        - name: Setup jdk 21 for build
+          uses: actions/setup-java@v4
+          with:
+              java-version: '21'
+              distribution: 'temurin'
+              cache: 'gradle'
         
-        steps:
-            - name: Check out repository code
-              uses: actions/checkout@v4
+        - name: Build with Gradle
+          run: |
+                ./gradlew build \
+                    -Dquarkus.native.enabled=true \
+                    -Dquarkus.native.container-build=true \
+                    -Dquarkus.package.jar.enabled=false
+          working-directory: ./afl-tracker
+        
+        - name: Native runner artifact
+          uses: actions/upload-artifact@v4
+          with:
+              name: native-runner
+              path: ./afl-tracker/build/afl-tracker-1.0.0-SNAPSHOT-runner
 
-            - name: Authenticate to Google Cloud
-              id: gcloud-auth
-              uses: google-github-actions/auth@v2
-              with:
-                token_format: 'access_token'
-                workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
-                service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+    build-and-push-image:
+      runs-on: ubuntu-latest
+      needs: build-and-test
+      environment: dev
+      permissions:
+        contents: read
+        id-token: write
+      outputs:
+        image_uri: ${{ steps.push_step.outputs.IMAGE_URI }}
+      
+      steps:
+        - name: Check out repository code
+          uses: actions/checkout@v4
 
-            - name: Setup jdk 21
-              uses: actions/setup-java@v4
-              with:
-                  java-version: '21'
-                  distribution: 'temurin'
-                  cache: 'gradle'
-            
-            - name: Build with Gradle
-              run: |
-                    ./gradlew build \
-                        -Dquarkus.native.enabled=true \
-                        -Dquarkus.native.container-build=true \
-                        -Dquarkus.package.jar.enabled=false
-              working-directory: ./afl-tracker
+        - name: Download native runner artifact
+          uses: actions/download-artifact@v4
+          with:
+              name: native-runner
+              path: ./afl-tracker/build
 
-            - name: Login to Artifact Registry
-              uses: docker/login-action@v3
-              with:
-                  registry: ${{ vars.GCP_REGION }}-docker.pkg.dev
-                  username: oauth2accesstoken
-                  password: ${{ steps.gcloud-auth.outputs.access_token }}
+        - name: Fix Permissions
+          run: chmod +x build/*-runner
+          working-directory: ./afl-tracker
 
-            - name: Build and Push Docker Image
-              env:
-                  IMAGE_NAME: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/afl-tracker-repo/afl-tracker-backend
-              run: |
-                    ls -lh build/
-                    docker build \
-                        -f src/main/docker/Dockerfile.native-micro \
-                        -t $IMAGE_NAME:$GITHUB_SHA \
-                        -t $IMAGE_NAME:latest \
-                        .
-                    docker push $IMAGE_NAME:$GITHUB_SHA
-                    docker push $IMAGE_NAME:latest
-                    echo "IMAGE_URI=$IMAGE_NAME:$GITHUB_SHA" >> $GITHUB_ENV
-              working-directory: ./afl-tracker
+        - name: Authenticate to Google Cloud
+          id: gcloud-auth
+          uses: google-github-actions/auth@v2
+          with:
+            token_format: 'access_token'
+            workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+            service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
 
-            - name: Pulumi Deploy
-              uses: pulumi/actions@v6
-              with:
-                  command: up
-                  stack-name: dev
-                  work-dir: ./pulumi-infra
-              env:
-                  PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
-                  GCP_ACCESS_TOKEN: ${{ steps.gcloud-auth.outputs.access_token }}
-                  PULUMI_CONFIG_PASSTHROUGH: gcp:project=${{ vars.GCP_PROJECT_ID }},gcp:region=${{ vars.GCP_REGION }},app-image=${{ env.IMAGE_URI }}
+        - name: Login to Artifact Registry
+          uses: docker/login-action@v3
+          with:
+              registry: ${{ vars.GCP_REGION }}-docker.pkg.dev
+              username: oauth2accesstoken
+              password: ${{ steps.gcloud-auth.outputs.access_token }}
+
+        - name: Build and Push Docker Image
+          id: push_step
+          env:
+              IMAGE_NAME: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/afl-tracker-repo/afl-tracker-backend
+          run: |
+                ls -lh build/
+                docker build \
+                    -f src/main/docker/Dockerfile.native-micro \
+                    -t $IMAGE_NAME:$GITHUB_SHA \
+                    -t $IMAGE_NAME:latest \
+                    .
+                docker push $IMAGE_NAME:$GITHUB_SHA
+                docker push $IMAGE_NAME:latest
+                echo "IMAGE_URI=$IMAGE_NAME:$GITHUB_SHA" >> "$GITHUB_OUTPUT"
+          working-directory: ./afl-tracker
+    
+    pulumi-deploy:
+      runs-on: ubuntu-latest
+      needs: build-and-push-image
+      environment: dev
+      permissions:
+        contents: read
+        id-token: write
+
+      steps:
+        - name: Check out repository code
+          uses: actions/checkout@v4
+
+        - name: Setup jdk 21 for Pulumi
+          uses: actions/setup-java@v4
+          with:
+              java-version: '21'
+              distribution: 'temurin'
+              cache: 'gradle'
+
+        - name: Check image URI
+          run: |
+            if [ -z "${{ needs.build-and-push-image.outputs.image_uri }}" ]; then
+              echo "Error: IMAGE_URI is not set!"
+              exit 1
+            else
+              echo "IMAGE_URI is set to: ${{ needs.build-and-push-image.outputs.image_uri }}"
+            fi
+
+        - name: Authenticate to Google Cloud
+          id: gcloud-auth
+          uses: google-github-actions/auth@v2
+          with:
+            token_format: 'access_token'
+            workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+            service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+        - name: Copy Maven settings.xml
+          working-directory: ./pulumi-infra
+          run: |
+            mkdir -p ~/.m2
+            cp settings.xml ~/.m2/settings.xml
+
+        - name: Pulumi Deploy
+          uses: pulumi/actions@v6
+          with:
+              command: up
+              stack-name: dev
+              work-dir: ./pulumi-infra
+          env:
+              PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+              GCP_ACCESS_TOKEN: ${{ steps.gcloud-auth.outputs.access_token }}
+              PULUMI_CONFIG_PASSTHROUGH: gcp:project=${{ vars.GCP_PROJECT_ID }},gcp:region=${{ vars.GCP_REGION }},app-image=${{ needs.build-and-push-image.outputs.image_uri }}
