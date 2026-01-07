@@ -1,0 +1,58 @@
+name: AFL Tracker Backend Dev Deploy
+run-name: Deploy AFL tracker backend by @${{ github.actor }} 🚀
+on: 
+    workflow_dispatch:
+      inputs:
+        deploy:
+          description: 'Deploy to dev environment?'
+          required: true
+          default: 'false'
+    push:
+      branches:
+        - main
+jobs:
+    deploy-to-dev:
+      runs-on: ubuntu-latest
+      environment: dev
+      permissions:
+        contents: read
+        id-token: write
+
+      steps:
+        - name: Check out repository code
+          uses: actions/checkout@v4
+
+        - name: Setup jdk 21 for Pulumi
+          uses: actions/setup-java@v4
+          with:
+              java-version: '21'
+              distribution: 'temurin'
+              cache: 'gradle'
+
+        - name: Authenticate to Google Cloud
+          id: gcloud-auth
+          uses: google-github-actions/auth@v2
+          with:
+            token_format: 'access_token'
+            workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
+            service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+
+        - name: Copy Maven settings.xml
+          working-directory: ./pulumi-infra
+          run: |
+            mkdir -p ~/.m2
+            cp settings.xml ~/.m2/settings.xml
+
+        - name: Pulumi Deploy
+          uses: pulumi/actions@v6
+          with:
+              command: up
+              stack-name: dev
+              work-dir: ./pulumi-infra
+          env:
+              PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+              GCP_ACCESS_TOKEN: ${{ steps.gcloud-auth.outputs.access_token }}
+              PULUMI_CONFIG_PASSTHROUGH: | 
+                gcp:project=${{ vars.GCP_PROJECT_ID }},\
+                gcp:region=${{ vars.GCP_REGION }},\
+                app-image=${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/afl-tracker-repo/afl-tracker-backend:${GITHUB_SHA}
