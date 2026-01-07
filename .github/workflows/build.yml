@@ -1,4 +1,4 @@
-name: AFL Tracker Backend Build
+name: build-test-and-push-image
 run-name: Build AFL tracker backend by @${{ github.actor }} 🚀
 on: [push]
 jobs:

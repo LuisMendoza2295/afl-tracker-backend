@@ -2,12 +2,12 @@ package com.afl.tracker;
 
 import static com.afl.tracker.CloudRun.createCloudRunService;
 import static com.afl.tracker.Storage.createStorageBucket;
+import static com.afl.tracker.iam.BucketIAM.grantBucketRoleToSA;
 import static com.afl.tracker.iam.DeployWIF.createSAImpersonationForPool;
 import static com.afl.tracker.iam.DeployWIF.createWorkloadIdentityPool;
 import static com.afl.tracker.iam.DeployWIF.createWorkloadIdentityProvider;
 import static com.afl.tracker.iam.ProjectIAM.grantRoleToSA;
 
-import com.afl.tracker.iam.BucketIAM;
 import com.pulumi.Pulumi;
 import com.pulumi.core.Output;
 import com.pulumi.gcp.serviceaccount.Account;
@@ -49,7 +49,7 @@ public class App {
       String storageAdminRole = "roles/storage.admin";
       grantRoleToSA(ctx, "storage-bucket-admin", storageAdminRole, deploySA);
       var storageBucket = createStorageBucket(ctx, deploySA);
-      BucketIAM.grantRoleToSA(storageBucket, deploySA);
+      grantBucketRoleToSA(ctx, deploySA);
       ctx.export("BUCKET_NAME", storageBucket.name());
 
       // Grant additional roles to the deploy SA for Cloud Run deployment
