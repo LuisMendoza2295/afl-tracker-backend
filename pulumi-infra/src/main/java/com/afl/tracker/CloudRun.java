@@ -42,7 +42,7 @@ public class CloudRun {
                 .build())
             .build());
 
-    var binding = new ServiceIamBinding("public-access", ServiceIamBindingArgs.builder()
+    new ServiceIamBinding("public-access", ServiceIamBindingArgs.builder()
         .location(cloudRunService.location())
         .name(cloudRunService.name())
         .role("roles/run.invoker")

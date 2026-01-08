@@ -27,7 +27,7 @@ public class TrackerService {
 
     public List<String> getImages() {
         return StreamSupport.stream(storage.list(bucketName).iterateAll().spliterator(), false)
-                .map(Blob::getName)
+                .map(Blob::getMediaLink)
                 .toList();
     }
 
