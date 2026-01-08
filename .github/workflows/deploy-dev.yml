@@ -1,4 +1,4 @@
-name: dev-deploy
+name: deploy-dev
 run-name: Deploy AFL tracker backend by @${{ github.actor }} 🚀
 on: 
     workflow_dispatch:
