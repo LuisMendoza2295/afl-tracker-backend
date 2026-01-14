@@ -25,9 +25,13 @@ public class TrackerService {
     @ConfigProperty(name = "application.gcs.bucket-name")
     String bucketName;
 
+    private static final String STORAGE_GOOGLEAPIS_BASE_URL = "https://storage.googleapis.com";
+
     public List<String> getImages() {
         return StreamSupport.stream(storage.list(bucketName).iterateAll().spliterator(), false)
-                .map(Blob::getMediaLink)
+                .map(blob -> {
+                    return String.format("%s/%s/%s", STORAGE_GOOGLEAPIS_BASE_URL, bucketName, blob.getName());
+                })
                 .toList();
     }
 
@@ -36,9 +40,9 @@ public class TrackerService {
             String fileUUID = UUID.randomUUID().toString();
             BlobId blobId = BlobId.of(bucketName, fileUUID);
             BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
-                .setContentType(file.contentType())
-                .setMetadata(Map.of("originalName", file.fileName()))
-                .build();
+                    .setContentType(file.contentType())
+                    .setMetadata(Map.of("originalName", file.fileName()))
+                    .build();
             var uploaded = storage.createFrom(blobInfo, file.uploadedFile());
 
             return uploaded.asBlobInfo();

@@ -1,7 +1,7 @@
 package com.afl.tracker;
 
 import static com.pulumi.gcp.serviceaccount.Account.get;
-
+import static com.afl.tracker.ArtifactRepository.createArtifactRepository;
 import static com.afl.tracker.CloudRun.createCloudRunService;
 import static com.afl.tracker.DeployWIF.createSAImpersonationForPool;
 import static com.afl.tracker.DeployWIF.createWorkloadIdentityPool;
@@ -21,7 +21,7 @@ public class App {
 
       String githubRepo = "LuisMendoza2295/afl-tracker-backend";
 
-      // Create Service Account for Deployment
+      // Get Service Account for Deployment
       var infraSA = get("existing-infra-sa", infraSAEmail, null, null);
 
       // Workload Identity Federation Setup
@@ -32,7 +32,7 @@ public class App {
       createSAImpersonationForPool(githubPool, githubRepo, infraSA);
 
       // Create Artifact Repository
-      var artifactRepository = ArtifactRepository.createArtifactRepository(ctx, infraSA);
+      var artifactRepository = createArtifactRepository(ctx, infraSA);
 
       // Export WIF info
       ctx.export("WIF_PROVIDER", githubProvider.name());

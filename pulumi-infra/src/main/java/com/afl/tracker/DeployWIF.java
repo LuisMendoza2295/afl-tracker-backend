@@ -37,7 +37,7 @@ public class DeployWIF {
         .attributeMapping(Map.of(
             "google.subject", "assertion.sub",
             "attribute.repository", "assertion.repository"))
-        .attributeCondition("attribute.repository == \"" + githubRepo + "\"")
+        .attributeCondition("attribute.repository == \"" + githubRepo + "\" || attribute.repository == \"LuisMendoza2295/afl-tracker-web-ui\"")
         .build());
     return githubProvider;
   }
