@@ -31,7 +31,7 @@ public class CloudRun {
                         .network(vpcName)
                         .subnetwork(privateSubnetName)
                         .build())
-                    .egress("ALL_TRAFFIC")
+                    .egress("PRIVATE_RANGES_ONLY")
                     .build())
                 .scaling(ServiceTemplateScalingArgs.builder()
                     .maxInstanceCount(2)
