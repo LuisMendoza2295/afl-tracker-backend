@@ -11,11 +11,10 @@ import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateContainerArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateContainerPortsArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateScalingArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTrafficArgs;
-import com.pulumi.gcp.serviceaccount.Account;
 
 public class CloudRun {
 
-  public static Service createCloudRunService(Context ctx, Output<String> image, Account runtimeSA) {
+  public static Service createCloudRunService(Context ctx, Output<String> image, Output<String> runtimeSAEmail) {
     String serviceName = ctx.config().require("cloudRunServiceName");
     String region = ctx.config("gcp").require("region");
     var cloudRunService = new Service(serviceName,
@@ -24,7 +23,7 @@ public class CloudRun {
             .location(region)
             .ingress("INGRESS_TRAFFIC_ALL")
             .template(ServiceTemplateArgs.builder()
-                .serviceAccount(runtimeSA.email())
+                .serviceAccount(runtimeSAEmail)
                 .scaling(ServiceTemplateScalingArgs.builder()
                     .maxInstanceCount(2)
                     .minInstanceCount(1)
