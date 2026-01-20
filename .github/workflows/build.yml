@@ -57,11 +57,6 @@ jobs:
         - name: Fix Permissions
           run: chmod +x build/*-runner
           working-directory: ./afl-tracker
-        
-        - name: "Debug OIDC Claims"
-          run: |
-            echo "REPOSITORY: $GITHUB_REPOSITORY"
-            echo "ACTOR: $GITHUB_ACTOR"
 
         - name: Authenticate to Google Cloud
           id: gcloud-auth
