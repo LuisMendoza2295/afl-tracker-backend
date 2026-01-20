@@ -7,6 +7,7 @@ on:
       - completed
 jobs:
     pre-deploy-check:
+      if: ${{ github.event.workflow_run.conclusion == 'success' }}
       runs-on: ubuntu-latest
       environment: dev
       permissions:
@@ -23,6 +24,11 @@ jobs:
               java-version: '21'
               distribution: 'temurin'
               cache: 'gradle'
+        
+        - name: "Debug Variables"
+          run: |
+            echo "Provider: ${{ vars.WIF_PROVIDER }}"
+            echo "Account: ${{ vars.APP_DEPLOYER_SERVICE_ACCOUNT }}"
         
         - name: Authenticate to Google Cloud
           id: gcloud-auth
