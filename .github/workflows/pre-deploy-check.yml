@@ -25,7 +25,7 @@ jobs:
               distribution: 'temurin'
               cache: 'gradle'
         
-        - name: "Debug Variables"
+        - name: Debug Variables
           run: |
             echo "Provider: ${{ vars.WIF_PROVIDER }}"
             echo "Account: ${{ vars.APP_DEPLOYER_SERVICE_ACCOUNT }}"
