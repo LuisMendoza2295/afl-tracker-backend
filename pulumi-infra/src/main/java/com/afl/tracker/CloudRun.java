@@ -10,11 +10,13 @@ import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateContainerArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateContainerPortsArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateScalingArgs;
+import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateVpcAccessArgs;
+import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateVpcAccessNetworkInterfaceArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTrafficArgs;
 
 public class CloudRun {
 
-  public static Service createCloudRunService(Context ctx, Output<String> image, Output<String> runtimeSAEmail) {
+  public static Service createCloudRunService(Context ctx, Output<String> image, Output<String> runtimeSAEmail, Output<String> vpcName, Output<String> privateSubnetName) {
     String serviceName = ctx.config().require("cloudRunServiceName");
     String region = ctx.config("gcp").require("region");
     var cloudRunService = new Service(serviceName,
@@ -24,6 +26,13 @@ public class CloudRun {
             .ingress("INGRESS_TRAFFIC_ALL")
             .template(ServiceTemplateArgs.builder()
                 .serviceAccount(runtimeSAEmail)
+                .vpcAccess(ServiceTemplateVpcAccessArgs.builder()
+                    .networkInterfaces(ServiceTemplateVpcAccessNetworkInterfaceArgs.builder()
+                        .network(vpcName)
+                        .subnetwork(privateSubnetName)
+                        .build())
+                    .egress("ALL_TRAFFIC")
+                    .build())
                 .scaling(ServiceTemplateScalingArgs.builder()
                     .maxInstanceCount(2)
                     .minInstanceCount(1)

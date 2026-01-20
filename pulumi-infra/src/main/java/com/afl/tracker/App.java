@@ -12,15 +12,17 @@ public class App {
     Pulumi.run(ctx -> {
       String projectId = ctx.config("gcp").require("project");
       String region = ctx.config("gcp").require("region");
-      String artifactoryRepoName = ctx.config().require("artifactoryRepoName");
       String infraStackName = ctx.config().require("infra-stack");
 
       var infraStack = new StackReference(infraStackName + "/dev");
       var runtimeSAEmail = infraStack.output("backendRuntimeSAEmail").applyValue(v -> v.toString());
+      var artifactRegistryName = infraStack.output("artifactRegistryName").applyValue(v -> v.toString());
+      var vpcName = infraStack.output("vpcName").applyValue(v -> v.toString());
+      var privateSubnetName = infraStack.output("privateSubnetName").applyValue(v -> v.toString());
       ctx.export("RUNTIME_SA_EMAIL", runtimeSAEmail);
 
       // Export WIF info
-      var repositoryUrl = String.format("%s-docker.pkg.dev/%s/%s", region, projectId, artifactoryRepoName);
+      var repositoryUrl = String.format("%s-docker.pkg.dev/%s/%s", region, projectId, artifactRegistryName);
       ctx.export("REPOSITORY_URL", repositoryUrl);
 
       // Create Storage Bucket
@@ -31,7 +33,7 @@ public class App {
       // Define Cloud Run v2 Service
       String latestImage = String.format("%s/afl-tracker-backend:latest", repositoryUrl);
       Output<String> appImage = ctx.config().get("app-image").map(Output::of).orElse(Output.of(latestImage));
-      var cloudRunService = createCloudRunService(ctx, appImage, runtimeSAEmail);
+      var cloudRunService = createCloudRunService(ctx, appImage, runtimeSAEmail, vpcName, privateSubnetName);
 
       ctx.export("CLOUD_RUN_URL", cloudRunService.uri());
     });
