@@ -14,6 +14,11 @@ jobs:
         id-token: write
 
       steps:
+        - name: Debug Variables
+          run: |
+            echo "Provider: ${{ vars.WIF_PROVIDER }}"
+            echo "Account: ${{ vars.APP_DEPLOYER_SERVICE_ACCOUNT }}"
+
         - name: Check out repository code
           uses: actions/checkout@v4
 
@@ -23,11 +28,6 @@ jobs:
               java-version: '21'
               distribution: 'temurin'
               cache: 'gradle'
-        
-        - name: Debug Variables
-          run: |
-            echo "Provider: ${{ vars.WIF_PROVIDER }}"
-            echo "Account: ${{ vars.APP_DEPLOYER_SERVICE_ACCOUNT }}"
         
         - name: Authenticate to Google Cloud
           id: gcloud-auth
