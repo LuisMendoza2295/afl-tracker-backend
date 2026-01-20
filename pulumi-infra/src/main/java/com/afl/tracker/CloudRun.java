@@ -1,7 +1,5 @@
 package com.afl.tracker;
 
-import java.util.Map;
-
 import com.pulumi.Context;
 import com.pulumi.core.Output;
 import com.pulumi.gcp.cloudrunv2.Service;
@@ -15,6 +13,7 @@ import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateScalingArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateVpcAccessArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateVpcAccessNetworkInterfaceArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTrafficArgs;
+import com.pulumi.resources.CustomResourceOptions;
 
 public class CloudRun {
 
@@ -27,6 +26,7 @@ public class CloudRun {
             .name(serviceName)
             .location(region)
             .ingress("INGRESS_TRAFFIC_ALL")
+            .invokerIamDisabled(true)
             .template(ServiceTemplateArgs.builder()
                 .serviceAccount(runtimeSAEmail)
                 .vpcAccess(ServiceTemplateVpcAccessArgs.builder()
@@ -36,9 +36,6 @@ public class CloudRun {
                         .build())
                     .egress("PRIVATE_RANGES_ONLY")
                     .build())
-                .annotations(Map.of(
-                    "run.googleapis.com/invoker-iam-disabled", "true"
-                ))
                 .scaling(ServiceTemplateScalingArgs.builder()
                     .maxInstanceCount(2)
                     .minInstanceCount(1)
@@ -62,6 +59,9 @@ public class CloudRun {
         .name(cloudRunService.name())
         .role("roles/run.invoker")
         .member("allUsers")
+        .build(),
+    CustomResourceOptions.builder()
+        .dependsOn(cloudRunService)
         .build());
     return cloudRunService;
   }
