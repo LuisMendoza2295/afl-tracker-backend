@@ -4,8 +4,8 @@ import com.pulumi.Context;
 import com.pulumi.core.Output;
 import com.pulumi.gcp.cloudrunv2.Service;
 import com.pulumi.gcp.cloudrunv2.ServiceArgs;
-import com.pulumi.gcp.cloudrunv2.ServiceIamBinding;
-import com.pulumi.gcp.cloudrunv2.ServiceIamBindingArgs;
+import com.pulumi.gcp.cloudrunv2.ServiceIamMember;
+import com.pulumi.gcp.cloudrunv2.ServiceIamMemberArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateContainerArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateContainerPortsArgs;
@@ -50,11 +50,11 @@ public class CloudRun {
                 .build())
             .build());
 
-    new ServiceIamBinding("public-access", ServiceIamBindingArgs.builder()
+    new ServiceIamMember("allow-public-access", ServiceIamMemberArgs.builder()
         .location(cloudRunService.location())
         .name(cloudRunService.name())
         .role("roles/run.invoker")
-        .members("allUsers")
+        .member("allUsers")
         .build());
     return cloudRunService;
   }
