@@ -5,3 +5,4 @@ config:
   pulumi:tags:
     value:
       pulumi:template: gcp-java
+  afl-tracker-backend:infra-stack: LuisMendoza2295/afl-tracker-infra

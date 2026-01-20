@@ -1,7 +1,7 @@
 package com.afl.tracker;
 
 import com.pulumi.Context;
-import com.pulumi.gcp.serviceaccount.Account;
+import com.pulumi.core.Output;
 import com.pulumi.gcp.storage.Bucket;
 import com.pulumi.gcp.storage.BucketArgs;
 import com.pulumi.gcp.storage.BucketIAMMember;
@@ -10,7 +10,7 @@ import com.pulumi.gcp.storage.inputs.BucketCorArgs;
 
 public class Storage {
 
-  public static Bucket createStorageBucket(Context ctx, Account runtimeSA) {
+  public static Bucket createStorageBucket(Context ctx, Output<String> runtimeSAEmail) {
     String bucketName = ctx.config().require("storageBucketName");
     String projectId = ctx.config("gcp").require("project");
     String region = ctx.config("gcp").require("region");
@@ -31,7 +31,7 @@ public class Storage {
     new BucketIAMMember("bucket-backend-admin", BucketIAMMemberArgs.builder()
         .bucket(storageBucket.name())
         .role("roles/storage.objectAdmin")
-        .member(runtimeSA.email().applyValue(email -> "serviceAccount:" + email))
+        .member(runtimeSAEmail.applyValue(email -> "serviceAccount:" + email))
         .build());
 
     new BucketIAMMember("bucket-public-read", BucketIAMMemberArgs.builder()
