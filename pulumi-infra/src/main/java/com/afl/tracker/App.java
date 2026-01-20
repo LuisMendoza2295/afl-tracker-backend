@@ -22,7 +22,7 @@ public class App {
       ctx.export("RUNTIME_SA_EMAIL", runtimeSAEmail);
 
       // Export WIF info
-      var repositoryUrl = String.format("%s-docker.pkg.dev/%s/%s", region, projectId, artifactRegistryName);
+      var repositoryUrl = Output.format("%s-docker.pkg.dev/%s/%s", region, projectId, artifactRegistryName);
       ctx.export("REPOSITORY_URL", repositoryUrl);
 
       // Create Storage Bucket
@@ -31,8 +31,8 @@ public class App {
       ctx.export("STORAGE_BUCKET_NAME", storageBucket.name());
 
       // Define Cloud Run v2 Service
-      String latestImage = String.format("%s/afl-tracker-backend:latest", repositoryUrl);
-      Output<String> appImage = ctx.config().get("app-image").map(Output::of).orElse(Output.of(latestImage));
+      var latestImage = Output.format("%s/afl-tracker-backend:latest", repositoryUrl);
+      var appImage = ctx.config().get("app-image").map(Output::of).orElse(latestImage);
       var cloudRunService = createCloudRunService(ctx, appImage, runtimeSAEmail, vpcName, privateSubnetName);
 
       ctx.export("CLOUD_RUN_URL", cloudRunService.uri());
