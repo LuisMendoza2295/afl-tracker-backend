@@ -14,6 +14,11 @@ jobs:
         id-token: write
 
       steps:
+        - name: Debug Variables
+          run: |
+            echo "Provider: ${{ vars.WIF_PROVIDER }}"
+            echo "Account: ${{ vars.APP_DEPLOYER_SERVICE_ACCOUNT }}"
+
         - name: Check out repository code
           uses: actions/checkout@v4
 
@@ -29,8 +34,8 @@ jobs:
           uses: google-github-actions/auth@v2
           with:
             token_format: 'access_token'
-            workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
-            service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+            workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+            service_account: ${{ vars.APP_DEPLOYER_SERVICE_ACCOUNT }}
 
         - name: Pulumi Pre-Deploy Check (Preview)
           uses: pulumi/actions@v6

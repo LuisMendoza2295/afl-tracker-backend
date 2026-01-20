@@ -31,8 +31,8 @@ jobs:
           uses: google-github-actions/auth@v2
           with:
             token_format: 'access_token'
-            workload_identity_provider: ${{ secrets.WIF_PROVIDER }}
-            service_account: ${{ secrets.WIF_SERVICE_ACCOUNT }}
+            workload_identity_provider: ${{ vars.WIF_PROVIDER }}
+            service_account: ${{ vars.APP_DEPLOYER_SERVICE_ACCOUNT }}
 
         - name: Copy Maven settings.xml
           working-directory: ./pulumi-infra

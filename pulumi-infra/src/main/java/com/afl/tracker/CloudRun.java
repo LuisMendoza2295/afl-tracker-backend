@@ -15,7 +15,7 @@ import com.pulumi.gcp.serviceaccount.Account;
 
 public class CloudRun {
 
-  public static Service createCloudRunService(Context ctx, Output<String> image, Account deploySA) {
+  public static Service createCloudRunService(Context ctx, Output<String> image, Account runtimeSA) {
     String serviceName = ctx.config().require("cloudRunServiceName");
     String region = ctx.config("gcp").require("region");
     var cloudRunService = new Service(serviceName,
@@ -24,7 +24,7 @@ public class CloudRun {
             .location(region)
             .ingress("INGRESS_TRAFFIC_ALL")
             .template(ServiceTemplateArgs.builder()
-                .serviceAccount(deploySA.email())
+                .serviceAccount(runtimeSA.email())
                 .scaling(ServiceTemplateScalingArgs.builder()
                     .maxInstanceCount(2)
                     .minInstanceCount(1)
