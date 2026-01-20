@@ -1,6 +1,5 @@
 package com.afl.tracker;
 
-import static com.pulumi.gcp.serviceaccount.Account.get;
 import static com.afl.tracker.CloudRun.createCloudRunService;
 import static com.afl.tracker.Storage.createStorageBucket;
 
