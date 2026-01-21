@@ -3,3 +3,17 @@
 !build/*-runner.jar
 !build/lib/*
 !build/quarkus-app/*
+
+# Allow the Gradle wrapper and configuration
+!gradlew
+!gradlew.bat
+!gradle/
+!build.gradle
+!settings.gradle
+!gradle.properties
+
+# Allow the source code
+!src/
+
+# Allow the final build artifacts (for your COPY --from steps)
+!build/quarkus-app/

@@ -2,7 +2,7 @@ package com.afl.tracker;
 
 import static com.afl.tracker.CloudRun.createCloudRunService;
 import static com.afl.tracker.Storage.createStorageBucket;
-
+import static com.afl.tracker.vision.Vision.setup;
 import com.pulumi.Pulumi;
 import com.pulumi.core.Output;
 import com.pulumi.resources.StackReference;
@@ -36,6 +36,10 @@ public class App {
       var cloudRunService = createCloudRunService(ctx, appImage, runtimeSAEmail, vpcName, privateSubnetName);
 
       ctx.export("CLOUD_RUN_URL", cloudRunService.uri());
+
+      // Setup Vision Product and Product Set
+      var visionProductSet = setup(ctx, storageBucket);
+      ctx.export("VISION_PRODUCT_SET", visionProductSet.id());
     });
   }
 }

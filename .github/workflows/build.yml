@@ -22,17 +22,16 @@ jobs:
         
         - name: Build with Gradle
           run: |
-                ./gradlew build \
-                    -Dquarkus.native.enabled=true \
-                    -Dquarkus.native.container-build=true \
-                    -Dquarkus.package.jar.enabled=false
+                ./gradlew clean build \
+                    -Dquarkus.package.jar.enabled=true \
+                    -Dquarkus.package.jar.type=fast-jar
           working-directory: ./afl-tracker
         
-        - name: Native runner artifact
+        - name: Upload Build Artifact
           uses: actions/upload-artifact@v4
           with:
-              name: native-runner
-              path: ./afl-tracker/build/afl-tracker-1.0.0-SNAPSHOT-runner
+              name: quarkus-app
+              path: ./afl-tracker/build/quarkus-app/
 
     build-and-push-image:
       runs-on: ubuntu-latest
@@ -48,15 +47,11 @@ jobs:
         - name: Check out repository code
           uses: actions/checkout@v4
 
-        - name: Download native runner artifact
+        - name: Download JVM artifact
           uses: actions/download-artifact@v4
           with:
-              name: native-runner
-              path: ./afl-tracker/build
-
-        - name: Fix Permissions
-          run: chmod +x build/*-runner
-          working-directory: ./afl-tracker
+              name: quarkus-app
+              path: ./afl-tracker/build/quarkus-app
 
         - name: Authenticate to Google Cloud
           id: gcloud-auth
@@ -80,7 +75,7 @@ jobs:
           run: |
                 ls -lh build/
                 docker build \
-                    -f src/main/docker/Dockerfile.native-micro \
+                    -f src/main/docker/Dockerfile.jvm \
                     -t $IMAGE_NAME:$GITHUB_SHA \
                     -t $IMAGE_NAME:latest \
                     .
