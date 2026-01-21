@@ -26,6 +26,7 @@ jobs:
                     -Dquarkus.native.enabled=true \
                     -Dquarkus.native.container-build=true \
                     -Dquarkus.package.jar.enabled=false
+                    -Dquarkus.native.additional-build-args="--initialize-at-run-time=io.netty.buffer.PooledByteBufAllocator\\,io.grpc.netty.Utils\\,io.grpc.netty.Utils\$ByteBufAllocatorPreferDirectHolder"
           working-directory: ./afl-tracker
         
         - name: Native runner artifact
