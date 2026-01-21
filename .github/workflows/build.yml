@@ -22,18 +22,16 @@ jobs:
         
         - name: Build with Gradle
           run: |
-                ./gradlew build \
-                    -Dquarkus.native.enabled=true \
-                    -Dquarkus.native.container-build=true \
-                    -Dquarkus.package.jar.enabled=false \
-                    -Dquarkus.native.additional-build-args="--initialize-at-run-time=io.netty.buffer.PooledByteBufAllocator\\,io.grpc.netty.Utils\\,io.grpc.netty.Utils\$ByteBufAllocatorPreferDirectHolder"
+                ./gradlew clean build \
+                    -Dquarkus.package.jar.enabled=true \
+                    -Dquarkus.package.jar.type=fast-jar
           working-directory: ./afl-tracker
         
-        - name: Native runner artifact
+        - name: Upload Build Artifact
           uses: actions/upload-artifact@v4
           with:
-              name: native-runner
-              path: ./afl-tracker/build/afl-tracker-1.0.0-SNAPSHOT-runner
+              name: quarkus-app
+              path: ./afl-tracker/build/quarkus-app/
 
     build-and-push-image:
       runs-on: ubuntu-latest
