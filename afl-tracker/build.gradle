@@ -18,7 +18,7 @@ dependencies {
 
     implementation 'io.quarkiverse.googlecloudservices:quarkus-google-cloud-secret-manager'
     implementation 'io.quarkiverse.googlecloudservices:quarkus-google-cloud-storage'
-    implementation 'com.google.cloud:google-cloud-vision'
+    implementation 'io.quarkiverse.opencv:quarkus-opencv:2.1.0'
 
     testImplementation 'io.quarkus:quarkus-junit5'
 }
