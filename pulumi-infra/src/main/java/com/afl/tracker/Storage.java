@@ -28,17 +28,19 @@ public class Storage {
         .uniformBucketLevelAccess(true)
         .build());
 
-    new BucketIAMMember("bucket-backend-admin", BucketIAMMemberArgs.builder()
+    var adminBucketIam = new BucketIAMMember("bucket-backend-admin", BucketIAMMemberArgs.builder()
         .bucket(storageBucket.name())
         .role("roles/storage.objectAdmin")
         .member(runtimeSAEmail.applyValue(email -> "serviceAccount:" + email))
         .build());
+    assert adminBucketIam != null;
 
-    new BucketIAMMember("bucket-public-read", BucketIAMMemberArgs.builder()
+    var publicBucketIam = new BucketIAMMember("bucket-public-read", BucketIAMMemberArgs.builder()
         .bucket(storageBucket.name())
         .role("roles/storage.objectViewer")
         .member("allUsers")
         .build());
+    assert publicBucketIam != null;
 
     return storageBucket;
   }

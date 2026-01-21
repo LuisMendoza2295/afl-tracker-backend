@@ -53,7 +53,7 @@ public class CloudRun {
                 .build())
             .build());
 
-    new ServiceIamMember("allow-public-access", ServiceIamMemberArgs.builder()
+    var publicAccessIam = new ServiceIamMember("allow-public-access", ServiceIamMemberArgs.builder()
         .project(projectId)
         .location(cloudRunService.location())
         .name(cloudRunService.name())
@@ -63,6 +63,8 @@ public class CloudRun {
     CustomResourceOptions.builder()
         .dependsOn(cloudRunService)
         .build());
+
+    assert publicAccessIam != null;
     return cloudRunService;
   }
 }

@@ -21,6 +21,7 @@ public class Vision {
       "afl-logo-set",
       setArgs,
       CustomResourceOptions.builder().build());
+    assert logoSetResource != null;
 
     var productArgs = new VisionResourceArgs();
     productArgs.project = projectId;
