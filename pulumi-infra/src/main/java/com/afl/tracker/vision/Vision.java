@@ -8,7 +8,7 @@ import com.pulumi.resources.CustomResourceOptions;
 public class Vision {
 
   public static CustomResource setup(Context ctx, Bucket storageBucket) {
-    String region = ctx.config("gcp").require("region");
+    String region = "us-east1";
     String projectId = ctx.config("gcp").require("project");
 
     var setArgs = new VisionResourceArgs();
