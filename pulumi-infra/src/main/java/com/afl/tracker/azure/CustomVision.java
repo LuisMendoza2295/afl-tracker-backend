@@ -30,14 +30,14 @@ public class CustomVision {
     
     
     // Get shared resources from platform stack (cast to String)
-    Output<String> resourceGroupName = platformStack.requireOutput("azureResourceGroupName").applyValue(v -> (String) v);
-    Output<String> backendIdentityPrincipalId = platformStack.requireOutput("azureBackendIdentityPrincipalId").applyValue(v -> (String) v);
+    Output<String> azureResourceGroupName = platformStack.requireOutput("azureResourceGroupName").applyValue(v -> (String) v);
+    Output<String> azureBackendIdentityPrincipalId = platformStack.requireOutput("azureBackendIdentityPrincipalId").applyValue(v -> (String) v);
     
     // Create Custom Vision Training Account
     var cvTraining = new Account("custom-vision-training",
         AccountArgs.builder()
             .accountName(String.format("afl-cv-train-%s", env))
-            .resourceGroupName(resourceGroupName)
+            .resourceGroupName(azureResourceGroupName)
             .location(location)
             .kind("CustomVision.Training")
             .sku(SkuArgs.builder()
@@ -57,7 +57,7 @@ public class CustomVision {
     var cvPrediction = new Account("custom-vision-prediction",
         AccountArgs.builder()
             .accountName(String.format("afl-cv-pred-%s", env))
-            .resourceGroupName(resourceGroupName)
+            .resourceGroupName(azureResourceGroupName)
             .location(location)
             .kind("CustomVision.Prediction")
             .sku(SkuArgs.builder()
@@ -81,7 +81,7 @@ public class CustomVision {
     // Grant backend identity access to Custom Vision Training
     var trainingAccess = new RoleAssignment("backend-cv-training-access",
         RoleAssignmentArgs.builder()
-            .principalId(backendIdentityPrincipalId)
+            .principalId(azureBackendIdentityPrincipalId)
             .principalType(PrincipalType.ServicePrincipal)
             .roleDefinitionId(cognitiveServicesUserRoleId)
             .scope(cvTraining.id())
@@ -90,7 +90,7 @@ public class CustomVision {
     // Grant backend identity access to Custom Vision Prediction
     var predictionAccess = new RoleAssignment("backend-cv-prediction-access",
         RoleAssignmentArgs.builder()
-            .principalId(backendIdentityPrincipalId)
+            .principalId(azureBackendIdentityPrincipalId)
             .principalType(PrincipalType.ServicePrincipal)
             .roleDefinitionId(cognitiveServicesUserRoleId)
             .scope(cvPrediction.id())
@@ -100,14 +100,14 @@ public class CustomVision {
     this.trainingEndpoint = cvTraining.properties().applyValue(p -> p.endpoint());
     this.predictionEndpoint = cvPrediction.properties().applyValue(p -> p.endpoint());
     
-    this.trainingKey = Output.tuple(cvTraining.name(), resourceGroupName).apply(tuple -> 
+    this.trainingKey = Output.tuple(cvTraining.name(), azureResourceGroupName).apply(tuple -> 
       CognitiveservicesFunctions.listAccountKeys(ListAccountKeysArgs.builder()
           .accountName(tuple.t1)
           .resourceGroupName(tuple.t2)
           .build())
     ).applyValue(keys -> keys.key1().orElse(""));
     
-    this.predictionKey = Output.tuple(cvPrediction.name(), resourceGroupName).apply(tuple -> 
+    this.predictionKey = Output.tuple(cvPrediction.name(), azureResourceGroupName).apply(tuple -> 
       CognitiveservicesFunctions.listAccountKeys(ListAccountKeysArgs.builder()
           .accountName(tuple.t1)
           .resourceGroupName(tuple.t2)
