@@ -28,9 +28,10 @@ public class CustomVision {
     var location = ctx.config("azure-native").require("location");
     var subscriptionId = ctx.config("azure-native").require("subscriptionId");
     
+    
     // Get shared resources from platform stack
-    var resourceGroupName = platformStack.requireOutput("azureResourceGroupName").applyValue(v -> v.toString());
-    var backendIdentityPrincipalId = platformStack.requireOutput("azureBackendIdentityPrincipalId").applyValue(v -> v.toString());
+    var resourceGroupName = platformStack.requireOutput("azureResourceGroupName");
+    var backendIdentityPrincipalId = platformStack.requireOutput("azureBackendIdentityPrincipalId");
     
     // Create Custom Vision Training Account
     var cvTraining = new Account("custom-vision-training",

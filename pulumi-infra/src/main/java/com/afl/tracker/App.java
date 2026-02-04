@@ -19,11 +19,12 @@ public class App {
           .name("LuisMendoza2295/afl-tracker-infra/" + ctx.stackName())
           .build());
       
+      
       // Get GCP platform outputs
-      var gcpRuntimeSAEmail = platformStack.requireOutput("gcpBackendRuntimeSAEmail").applyValue(v -> v.toString());
-      var gcpArtifactRegistryName = platformStack.requireOutput("gcpArtifactRegistryName").applyValue(v -> v.toString());
-      var gcpVpcName = platformStack.requireOutput("gcpVpcName").applyValue(v -> v.toString());
-      var gcpPrivateSubnetName = platformStack.requireOutput("gcpPrivateSubnetName").applyValue(v -> v.toString());
+      var gcpRuntimeSAEmail = platformStack.requireOutput("gcpBackendRuntimeSAEmail");
+      var gcpArtifactRegistryName = platformStack.requireOutput("gcpArtifactRegistryName");
+      var gcpVpcName = platformStack.requireOutput("gcpVpcName");
+      var gcpPrivateSubnetName = platformStack.requireOutput("gcpPrivateSubnetName");
       
       // Export GCP platform info
       ctx.export("RUNTIME_SA_EMAIL", gcpRuntimeSAEmail);
