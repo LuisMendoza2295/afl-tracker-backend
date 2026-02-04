@@ -13,13 +13,10 @@ public class App {
     Pulumi.run(ctx -> {
       String projectId = ctx.config("gcp").require("project");
       String region = ctx.config("gcp").require("region");
-      // infra-stack comes from Pulumi.yaml, but can be overridden
-      String infraStack = ctx.config().get("infra-stack").orElse("LuisMendoza2295/afl-tracker-infra");
+      String infraStackName = ctx.config().require("infra-stack");
 
-      // Reference platform infrastructure stack (uses same stack name as current)
-      var platformStack = new StackReference("platform-stack", StackReferenceArgs.builder()
-          .name(infraStack + "/" + ctx.stackName())
-          .build());
+      // Reference platform infrastructure stack
+      var platformStack = new StackReference(infraStackName + "/dev");
       
       
       // Get GCP platform outputs (cast to String)
