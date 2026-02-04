@@ -15,10 +15,10 @@ dependencies {
     implementation 'io.quarkus:quarkus-rest'
     implementation 'io.quarkus:quarkus-rest-jackson'
     implementation 'io.quarkus:quarkus-arc'
+    implementation 'io.quarkus:quarkus-logging-json'
 
     implementation 'io.quarkiverse.googlecloudservices:quarkus-google-cloud-secret-manager'
     implementation 'io.quarkiverse.googlecloudservices:quarkus-google-cloud-storage'
-    implementation 'com.google.cloud:google-cloud-vision'
 
     testImplementation 'io.quarkus:quarkus-junit5'
 }

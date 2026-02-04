@@ -1,4 +1,4 @@
-package com.afl.tracker;
+package com.afl.tracker.gcp;
 
 import com.pulumi.Context;
 import com.pulumi.core.Output;
@@ -17,10 +17,11 @@ import com.pulumi.resources.CustomResourceOptions;
 
 public class CloudRun {
 
-  public static Service createCloudRunService(Context ctx, Output<String> image, Output<String> runtimeSAEmail, Output<String> vpcName, Output<String> privateSubnetName) {
+  public static Service create(Context ctx, Output<String> image, Output<String> runtimeSAEmail, Output<String> vpcName, Output<String> privateSubnetName) {
     String serviceName = ctx.config().require("cloudRunServiceName");
     String region = ctx.config("gcp").require("region");
     String projectId = ctx.config("gcp").require("project");
+    
     var cloudRunService = new Service(serviceName,
         ServiceArgs.builder()
             .name(serviceName)
@@ -37,8 +38,8 @@ public class CloudRun {
                     .egress("PRIVATE_RANGES_ONLY")
                     .build())
                 .scaling(ServiceTemplateScalingArgs.builder()
-                    .maxInstanceCount(2)
-                    .minInstanceCount(1)
+                    .maxInstanceCount(1)
+                    .minInstanceCount(0)
                     .build())
                 .containers(ServiceTemplateContainerArgs.builder()
                     .image(image)

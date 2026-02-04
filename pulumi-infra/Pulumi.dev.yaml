@@ -1,6 +1,8 @@
 config:
   gcp:project: afl-tracker-482307
   gcp:region: us-central1
+  azure-native:subscriptionId: 4ac47ed8-35f5-4392-b406-1bf72a5c70e9
+  azure-native:location: eastus
   afl-tracker-backend:artifactoryRepoName: afl-tracker-repo
   afl-tracker-backend:cloudRunServiceName: afl-tracker-backend-service
   afl-tracker-backend:storageBucketName: afl-tracker-storage-bucket
