@@ -18,9 +18,12 @@ jobs:
           run: |
             echo "Provider: ${{ vars.WIF_PROVIDER }}"
             echo "Account: ${{ vars.APP_DEPLOYER_SERVICE_ACCOUNT }}"
+            echo "Branch: ${{ github.event.workflow_run.head_branch }}"
 
         - name: Check out repository code
           uses: actions/checkout@v4
+          with:
+            ref: ${{ github.event.workflow_run.head_branch }}
 
         - name: Setup jdk 21 for Pre-deploy Check
           uses: actions/setup-java@v4
