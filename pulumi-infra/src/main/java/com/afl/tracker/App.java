@@ -13,10 +13,11 @@ public class App {
     Pulumi.run(ctx -> {
       String projectId = ctx.config("gcp").require("project");
       String region = ctx.config("gcp").require("region");
+      String infraStack = ctx.config().require("infra-stack");
 
       // Reference platform infrastructure stack (uses same stack name as current)
       var platformStack = new StackReference("platform-stack", StackReferenceArgs.builder()
-          .name("LuisMendoza2295/afl-tracker-infra/" + ctx.stackName())
+          .name(infraStack + "/" + ctx.stackName())
           .build());
       
       
