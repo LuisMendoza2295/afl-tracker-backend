@@ -83,3 +83,10 @@ jobs:
                 docker push $IMAGE_NAME:latest
                 echo "IMAGE_URI=$IMAGE_NAME:$GITHUB_SHA" >> "$GITHUB_OUTPUT"
           working-directory: ./afl-tracker
+
+    pre-deploy-check:
+      needs: build-and-push-image
+      uses: ./.github/workflows/pre-deploy-check.yml
+      with:
+        image_uri: ${{ needs.build-and-push-image.outputs.image_uri }}
+      secrets: inherit

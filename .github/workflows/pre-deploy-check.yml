@@ -1,10 +1,16 @@
 name: pre-deploy-check
 run-name: Pre-deploy checks for AFL tracker backend by @${{ github.actor }}
 on:
-  workflow_run:
-    workflows: ["build-test-and-push-image"]
-    types:
-      - completed
+  workflow_call:
+    inputs:
+      image_uri:
+        description: 'Docker image URI to use in Pulumi preview'
+        required: true
+        type: string
+    secrets:
+      PULUMI_ACCESS_TOKEN:
+        required: true
+      
 jobs:
     pre-deploy-check:
       runs-on: ubuntu-latest
@@ -22,8 +28,6 @@ jobs:
 
         - name: Check out repository code
           uses: actions/checkout@v4
-          with:
-            ref: ${{ github.event.workflow_run.head_branch }}
 
         - name: Setup jdk 21 for Pre-deploy Check
           uses: actions/setup-java@v4
@@ -54,4 +58,4 @@ jobs:
                 gcp:region=${{ vars.GCP_REGION }},\
                 azure-native:subscriptionId=${{ vars.AZURE_SUBSCRIPTION_ID }},\
                 azure-native:location=${{ vars.AZURE_LOCATION }},\
-                app-image=${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/afl-tracker-repo/afl-tracker-backend:${GITHUB_SHA}
+                app-image=${{ inputs.image_uri }}
