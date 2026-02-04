@@ -24,7 +24,6 @@ jobs:
           run: |
             echo "Provider: ${{ vars.WIF_PROVIDER }}"
             echo "Account: ${{ vars.APP_DEPLOYER_SERVICE_ACCOUNT }}"
-            echo "Branch: ${{ github.event.workflow_run.head_branch }}"
 
         - name: Check out repository code
           uses: actions/checkout@v4
@@ -43,6 +42,13 @@ jobs:
             token_format: 'access_token'
             workload_identity_provider: ${{ vars.WIF_PROVIDER }}
             service_account: ${{ vars.APP_DEPLOYER_SERVICE_ACCOUNT }}
+
+        - name: Authenticate to Azure
+          uses: azure/login@v1
+          with:
+            client-id: ${{ vars.AZURE_CLIENT_ID }}
+            tenant-id: ${{ vars.AZURE_TENANT_ID }}
+            subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
 
         - name: Pulumi Pre-Deploy Check (Preview)
           uses: pulumi/actions@v6
