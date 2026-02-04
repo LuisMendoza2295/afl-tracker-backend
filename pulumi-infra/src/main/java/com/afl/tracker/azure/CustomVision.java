@@ -29,9 +29,9 @@ public class CustomVision {
     var subscriptionId = ctx.config("azure-native").require("subscriptionId");
     
     
-    // Get shared resources from platform stack
-    var resourceGroupName = platformStack.requireOutput("azureResourceGroupName");
-    var backendIdentityPrincipalId = platformStack.requireOutput("azureBackendIdentityPrincipalId");
+    // Get shared resources from platform stack (cast to String)
+    Output<String> resourceGroupName = platformStack.requireOutput("azureResourceGroupName").applyValue(v -> (String) v);
+    Output<String> backendIdentityPrincipalId = platformStack.requireOutput("azureBackendIdentityPrincipalId").applyValue(v -> (String) v);
     
     // Create Custom Vision Training Account
     var cvTraining = new Account("custom-vision-training",
@@ -100,23 +100,19 @@ public class CustomVision {
     this.trainingEndpoint = cvTraining.properties().applyValue(p -> p.endpoint());
     this.predictionEndpoint = cvPrediction.properties().applyValue(p -> p.endpoint());
     
-    this.trainingKey = cvTraining.name().apply(name -> 
-        resourceGroupName.apply(rgName -> 
-            CognitiveservicesFunctions.listAccountKeys(ListAccountKeysArgs.builder()
-                .accountName(name)
-                .resourceGroupName(rgName)
-                .build())
-        ).applyValue(keysOutput -> keysOutput.key1().orElse(""))
-    );
+    this.trainingKey = Output.tuple(cvTraining.name(), resourceGroupName).apply(tuple -> 
+      CognitiveservicesFunctions.listAccountKeys(ListAccountKeysArgs.builder()
+          .accountName(tuple.t1)
+          .resourceGroupName(tuple.t2)
+          .build())
+    ).applyValue(keys -> keys.key1().orElse(""));
     
-    this.predictionKey = cvPrediction.name().apply(name -> 
-        resourceGroupName.apply(rgName -> 
-            CognitiveservicesFunctions.listAccountKeys(ListAccountKeysArgs.builder()
-                .accountName(name)
-                .resourceGroupName(rgName)
-                .build())
-        ).applyValue(keysOutput -> keysOutput.key1().orElse(""))
-    );
+    this.predictionKey = Output.tuple(cvPrediction.name(), resourceGroupName).apply(tuple -> 
+      CognitiveservicesFunctions.listAccountKeys(ListAccountKeysArgs.builder()
+          .accountName(tuple.t1)
+          .resourceGroupName(tuple.t2)
+          .build())
+    ).applyValue(keys -> keys.key1().orElse(""));
     
     // Ensure role assignments are created (even though not used directly)
     assert trainingAccess != null;

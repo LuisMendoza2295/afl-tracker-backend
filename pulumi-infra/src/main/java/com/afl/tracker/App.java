@@ -22,11 +22,11 @@ public class App {
           .build());
       
       
-      // Get GCP platform outputs
-      var gcpRuntimeSAEmail = platformStack.requireOutput("gcpBackendRuntimeSAEmail");
-      var gcpArtifactRegistryName = platformStack.requireOutput("gcpArtifactRegistryName");
-      var gcpVpcName = platformStack.requireOutput("gcpVpcName");
-      var gcpPrivateSubnetName = platformStack.requireOutput("gcpPrivateSubnetName");
+      // Get GCP platform outputs (cast to String)
+      Output<String> gcpRuntimeSAEmail = platformStack.requireOutput("gcpBackendRuntimeSAEmail").applyValue(v -> (String) v);
+      Output<String> gcpArtifactRegistryName = platformStack.requireOutput("gcpArtifactRegistryName").applyValue(v -> (String) v);
+      Output<String> gcpVpcName = platformStack.requireOutput("gcpVpcName").applyValue(v -> (String) v);
+      Output<String> gcpPrivateSubnetName = platformStack.requireOutput("gcpPrivateSubnetName").applyValue(v -> (String) v);
       
       // Export GCP platform info
       ctx.export("RUNTIME_SA_EMAIL", gcpRuntimeSAEmail);
