@@ -34,6 +34,14 @@ jobs:
             workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
             service_account: ${{ vars.GCP_APP_DEPLOYER_SERVICE_ACCOUNT }}
 
+        - name: Authenticate to Azure
+          id: azure-login
+          uses: azure/login@v1
+          with:
+            client-id: ${{ vars.AZURE_CLIENT_ID }}
+            tenant-id: ${{ vars.AZURE_TENANT_ID }}
+            subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
         - name: Copy Maven settings.xml
           working-directory: ./pulumi-infra
           run: |
@@ -49,6 +57,11 @@ jobs:
           env:
               PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
               GCP_ACCESS_TOKEN: ${{ steps.gcloud-auth.outputs.access_token }}
+              ARM_USE_OIDC: true
+              ARM_CLIENT_ID: ${{ vars.AZURE_CLIENT_ID }}
+              ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+              ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+              ARM_OIDC_TOKEN: ${{ steps.azure-login.outputs.token }}
               PULUMI_CONFIG_PASSTHROUGH: | 
                 gcp:project=${{ vars.GCP_PROJECT_ID }},\
                 gcp:region=${{ vars.GCP_REGION }},\
