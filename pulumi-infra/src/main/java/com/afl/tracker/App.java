@@ -19,21 +19,21 @@ public class App {
       var platformStack = new StackReference(infraStackName + "/dev");
       
       
-      // Get GCP platform outputs (cast to String)
-      Output<String> gcpRuntimeSAEmail = platformStack.requireOutput("gcpBackendRuntimeSAEmail").applyValue(v -> (String) v);
-      Output<String> gcpArtifactRegistryName = platformStack.requireOutput("gcpArtifactRegistryName").applyValue(v -> (String) v);
-      Output<String> gcpVpcName = platformStack.requireOutput("gcpVpcName").applyValue(v -> (String) v);
-      Output<String> gcpPrivateSubnetName = platformStack.requireOutput("gcpPrivateSubnetName").applyValue(v -> (String) v);
+      // Get GCP platform outputs using .output() not .requireOutput()
+      var runtimeSAEmail = platformStack.output("gcpBackendRuntimeSAEmail").applyValue(v -> v.toString());
+      var artifactRegistryName = platformStack.output("gcpArtifactRegistryName").applyValue(v -> v.toString());
+      var vpcName = platformStack.output("gcpVpcName").applyValue(v -> v.toString());
+      var privateSubnetName = platformStack.output("gcpPrivateSubnetName").applyValue(v -> v.toString());
       
       // Export GCP platform info
-      ctx.export("RUNTIME_SA_EMAIL", gcpRuntimeSAEmail);
-      var repositoryUrl = Output.format("%s-docker.pkg.dev/%s/%s", region, projectId, gcpArtifactRegistryName);
+      ctx.export("RUNTIME_SA_EMAIL", runtimeSAEmail);
+      var repositoryUrl = Output.format("%s-docker.pkg.dev/%s/%s", region, projectId, artifactRegistryName);
       ctx.export("REPOSITORY_URL", repositoryUrl);
 
       // ===== GCP Resources =====
       
       // Create Storage Bucket
-      var storageBucket = Storage.create(ctx, gcpRuntimeSAEmail);
+      var storageBucket = Storage.create(ctx, runtimeSAEmail);
       ctx.export("STORAGE_BUCKET_URL", storageBucket.url());
       ctx.export("STORAGE_BUCKET_NAME", storageBucket.name());
 
@@ -41,7 +41,7 @@ public class App {
       var latestImage = Output.format("%s/afl-tracker-backend:latest", repositoryUrl);
       var appImage = ctx.config().get("app-image").map(Output::of).orElse(latestImage);
       ctx.export("APP_IMAGE", appImage);
-      var cloudRunService = CloudRun.create(ctx, appImage, gcpRuntimeSAEmail, gcpVpcName, gcpPrivateSubnetName);
+      var cloudRunService = CloudRun.create(ctx, appImage, runtimeSAEmail, vpcName, privateSubnetName);
       ctx.export("CLOUD_RUN_URL", cloudRunService.uri());
 
       // ===== Azure Resources =====
