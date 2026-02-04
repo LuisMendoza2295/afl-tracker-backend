@@ -58,8 +58,8 @@ jobs:
           uses: google-github-actions/auth@v2
           with:
             token_format: 'access_token'
-            workload_identity_provider: ${{ vars.WIF_PROVIDER }}
-            service_account: ${{ vars.APP_DEPLOYER_SERVICE_ACCOUNT }}
+            workload_identity_provider: ${{ vars.GCP_WIF_PROVIDER }}
+            service_account: ${{ vars.GCP_APP_DEPLOYER_SERVICE_ACCOUNT }}
 
         - name: Login to Artifact Registry
           uses: docker/login-action@v3
