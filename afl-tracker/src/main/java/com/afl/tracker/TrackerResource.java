@@ -6,6 +6,7 @@ import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 
 import com.afl.tracker.service.TrackerService;
+import com.afl.tracker.service.VisionService;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 
@@ -25,6 +26,9 @@ public class TrackerResource {
     @Inject
     TrackerService trackerService;
 
+    @Inject
+    VisionService visionService;
+
     @GET
     @Path("/images")
     @Produces(MediaType.APPLICATION_JSON)
@@ -37,8 +41,34 @@ public class TrackerResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Path("/images/upload")
     public Response hello(@RestForm("file") FileUpload file) {
-        BlobInfo blobInfo = trackerService.uploadFile(file);
-        return Response.status(Response.Status.CREATED).entity("File uploaded successfully: " + blobInfo.getName()).build();
+        try {
+            BlobInfo blobInfo = trackerService.uploadFile(file);
+            return Response.status(Response.Status.CREATED)
+                    .entity("File uploaded successfully: " + blobInfo.getName())
+                    .build();
+        } catch (IllegalArgumentException e) {
+            // Logo validation failed
+            return Response.status(Response.Status.BAD_REQUEST)
+                    .entity(e.getMessage())
+                    .build();
+        } catch (Exception e) {
+            // Other errors
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("File upload failed: " + e.getMessage())
+                    .build();
+        }
+    }
+
+    @POST
+    @Consumes(MediaType.MULTIPART_FORM_DATA)
+    @Path("/images/validate")
+    public Response validateLogo(@RestForm("file") FileUpload file) {
+        var response = visionService.validateLogoPresence(file.uploadedFile(), file.fileName());
+        if (response) {
+            return Response.ok().entity("Logo detected").build();
+        } else {
+            return Response.status(Response.Status.BAD_REQUEST).entity("Logo NOT detected").build();
+        }
     }
 
     @GET

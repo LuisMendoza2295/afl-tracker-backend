@@ -1,11 +1,13 @@
 package com.afl.tracker.service;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.stream.StreamSupport;
 
 import org.eclipse.microprofile.config.inject.ConfigProperty;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 
 import com.google.cloud.storage.Blob;
@@ -20,7 +22,13 @@ import jakarta.inject.Inject;
 public class TrackerService {
 
     @Inject
+    Logger logger;
+
+    @Inject
     Storage storage;
+
+    @Inject
+    VisionService visionService;
 
     @ConfigProperty(name = "application.gcs.bucket-name")
     String bucketName;
@@ -37,6 +45,12 @@ public class TrackerService {
 
     public BlobInfo uploadFile(FileUpload file) {
         try {
+            // Validate logo presence before uploading
+            boolean logoDetected = visionService.validateLogoPresence(file.uploadedFile(), file.fileName());
+            if (!logoDetected) {
+                throw new IllegalArgumentException("Logo not detected in image. Please upload an image containing the AFL logo.");
+            }
+
             String fileUUID = UUID.randomUUID().toString();
             BlobId blobId = BlobId.of(bucketName, fileUUID);
             BlobInfo blobInfo = BlobInfo.newBuilder(blobId)
@@ -46,8 +60,8 @@ public class TrackerService {
             var uploaded = storage.createFrom(blobInfo, file.uploadedFile());
 
             return uploaded.asBlobInfo();
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (IOException e) {
+            logger.error("Error uploading file", e);
             throw new RuntimeException("File upload failed", e);
         }
     }

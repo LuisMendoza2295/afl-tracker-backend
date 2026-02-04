@@ -1,10 +1,12 @@
 package com.afl.tracker;
 
-import static com.afl.tracker.CloudRun.createCloudRunService;
-import static com.afl.tracker.Storage.createStorageBucket;
+import com.afl.tracker.gcp.CloudRun;
+import com.afl.tracker.gcp.Storage;
+import com.afl.tracker.azure.CustomVision;
 import com.pulumi.Pulumi;
 import com.pulumi.core.Output;
 import com.pulumi.resources.StackReference;
+import com.pulumi.resources.StackReferenceArgs;
 
 public class App {
   public static void main(String[] args) {
@@ -13,28 +15,43 @@ public class App {
       String region = ctx.config("gcp").require("region");
       String infraStackName = ctx.config().require("infra-stack");
 
-      var infraStack = new StackReference(infraStackName + "/dev");
-      var runtimeSAEmail = infraStack.output("backendRuntimeSAEmail").applyValue(v -> v.toString());
-      var artifactRegistryName = infraStack.output("artifactRegistryName").applyValue(v -> v.toString());
-      var vpcName = infraStack.output("vpcName").applyValue(v -> v.toString());
-      var privateSubnetName = infraStack.output("privateSubnetName").applyValue(v -> v.toString());
-      ctx.export("RUNTIME_SA_EMAIL", runtimeSAEmail);
+      // Reference platform infrastructure stack
+      var platformStack = new StackReference(infraStackName + "/dev");
+      
+      
+      // Get GCP platform outputs using .output() not .requireOutput()
+      var gcpRuntimeSAEmail = platformStack.output("gcpBackendRuntimeSAEmail").applyValue(v -> v.toString());
+      var gcpArtifactRegistryName = platformStack.output("gcpArtifactRegistryName").applyValue(v -> v.toString());
+      var gcpVpcName = platformStack.output("gcpVpcName").applyValue(v -> v.toString());
+      var gcpPrivateSubnetName = platformStack.output("gcpPrivateSubnetName").applyValue(v -> v.toString());
+      
+      // Export GCP platform info
+      ctx.export("RUNTIME_SA_EMAIL", gcpRuntimeSAEmail);
+      var gcpRepositoryUrl = Output.format("%s-docker.pkg.dev/%s/%s", region, projectId, gcpArtifactRegistryName);
+      ctx.export("REPOSITORY_URL", gcpRepositoryUrl);
 
-      // Export WIF info
-      var repositoryUrl = Output.format("%s-docker.pkg.dev/%s/%s", region, projectId, artifactRegistryName);
-      ctx.export("REPOSITORY_URL", repositoryUrl);
-
+      // ===== GCP Resources =====
+      
       // Create Storage Bucket
-      var storageBucket = createStorageBucket(ctx, runtimeSAEmail);
+      var storageBucket = Storage.create(ctx, gcpRuntimeSAEmail);
       ctx.export("STORAGE_BUCKET_URL", storageBucket.url());
       ctx.export("STORAGE_BUCKET_NAME", storageBucket.name());
 
-      // Define Cloud Run v2 Service
-      var latestImage = Output.format("%s/afl-tracker-backend:latest", repositoryUrl);
+      // Create Cloud Run Service
+      var latestImage = Output.format("%s/afl-tracker-backend:latest", gcpRepositoryUrl);
       var appImage = ctx.config().get("app-image").map(Output::of).orElse(latestImage);
-      var cloudRunService = createCloudRunService(ctx, appImage, runtimeSAEmail, vpcName, privateSubnetName);
-
+      ctx.export("APP_IMAGE", appImage);
+      var cloudRunService = CloudRun.create(ctx, appImage, gcpRuntimeSAEmail, gcpVpcName, gcpPrivateSubnetName);
       ctx.export("CLOUD_RUN_URL", cloudRunService.uri());
+
+      // ===== Azure Resources =====
+      
+      // Create Custom Vision (Training + Prediction)
+      var customVision = new CustomVision(ctx, platformStack);
+      ctx.export("AZURE_CV_TRAINING_ENDPOINT", customVision.getTrainingEndpoint());
+      ctx.export("AZURE_CV_PREDICTION_ENDPOINT", customVision.getPredictionEndpoint());
+      ctx.export("AZURE_CV_TRAINING_KEY", customVision.getTrainingKey());
+      ctx.export("AZURE_CV_PREDICTION_KEY", customVision.getPredictionKey());
     });
   }
 }

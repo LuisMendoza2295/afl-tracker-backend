@@ -1,4 +1,4 @@
-package com.afl.tracker;
+package com.afl.tracker.gcp;
 
 import com.pulumi.Context;
 import com.pulumi.core.Output;
@@ -10,10 +10,11 @@ import com.pulumi.gcp.storage.inputs.BucketCorArgs;
 
 public class Storage {
 
-  public static Bucket createStorageBucket(Context ctx, Output<String> runtimeSAEmail) {
+  public static Bucket create(Context ctx, Output<String> runtimeSAEmail) {
     String bucketName = ctx.config().require("storageBucketName");
     String projectId = ctx.config("gcp").require("project");
     String region = ctx.config("gcp").require("region");
+    
     var storageBucket = new Bucket(bucketName, BucketArgs.builder()
         .name(bucketName)
         .project(projectId)
