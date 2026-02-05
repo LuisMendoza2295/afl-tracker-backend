@@ -67,4 +67,6 @@ jobs:
                 gcp:region=${{ vars.GCP_REGION }},\
                 azure-native:subscriptionId=${{ vars.AZURE_SUBSCRIPTION_ID }},\
                 azure-native:location=${{ vars.AZURE_LOCATION }},\
+                azure-cv-project-id=${{ vars.AZURE_CV_PROJECT_ID }},\
+                azure-cv-iteration-id=${{ vars.AZURE_CV_ITERATION_ID }},\
                 app-image=${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/afl-tracker-repo/afl-tracker-backend:${GITHUB_SHA}

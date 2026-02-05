@@ -1,12 +1,13 @@
-package com.afl.tracker;
+package com.afl.tracker.controller;
 
 import java.util.List;
 
 import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 
+import com.afl.tracker.controller.dto.DetectionResultDto;
+import com.afl.tracker.domain.model.VisionInfo;
 import com.afl.tracker.service.TrackerService;
-import com.afl.tracker.service.VisionService;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobInfo;
 
@@ -25,9 +26,6 @@ public class TrackerResource {
 
     @Inject
     TrackerService trackerService;
-
-    @Inject
-    VisionService visionService;
 
     @GET
     @Path("/images")
@@ -63,12 +61,9 @@ public class TrackerResource {
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Path("/images/validate")
     public Response validateLogo(@RestForm("file") FileUpload file) {
-        var response = visionService.validateLogoPresence(file.uploadedFile(), file.fileName());
-        if (response) {
-            return Response.ok().entity("Logo detected").build();
-        } else {
-            return Response.status(Response.Status.BAD_REQUEST).entity("Logo NOT detected").build();
-        }
+        VisionInfo visionInfo = trackerService.getVisionInfo(file);
+        DetectionResultDto result = DetectionResultDto.from(visionInfo, file.fileName());
+        return Response.ok().entity(result).build();
     }
 
     @GET
