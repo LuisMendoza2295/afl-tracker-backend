@@ -9,7 +9,7 @@ import com.pulumi.gcp.cloudrunv2.ServiceIamMember;
 import com.pulumi.gcp.cloudrunv2.ServiceIamMemberArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateContainerArgs;
-import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateContainerEnvsArgs;
+import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateContainerEnvArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateContainerPortsArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateScalingArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateVpcAccessArgs;
@@ -65,28 +65,23 @@ public class CloudRun {
                         .containerPort(8080)
                         .build())
                     .envs(
-                        // GCP Storage Bucket
-                        ServiceTemplateContainerEnvsArgs.builder()
+                        ServiceTemplateContainerEnvArgs.builder()
                             .name("GCS_BUCKET_NAME")
                             .value(storageBucketName)
                             .build(),
-                        // Azure Custom Vision - Endpoint
-                        ServiceTemplateContainerEnvsArgs.builder()
+                        ServiceTemplateContainerEnvArgs.builder()
                             .name("AZURE_CV_PREDICTION_ENDPOINT")
                             .value(cvPredictionEndpoint)
                             .build(),
-                        // Azure Custom Vision - Prediction Key (secret)
-                        ServiceTemplateContainerEnvsArgs.builder()
+                        ServiceTemplateContainerEnvArgs.builder()
                             .name("AZURE_CV_PREDICTION_KEY")
                             .value(cvPredictionKey)
                             .build(),
-                        // Azure Custom Vision - Project ID
-                        ServiceTemplateContainerEnvsArgs.builder()
+                        ServiceTemplateContainerEnvArgs.builder()
                             .name("AZURE_CV_PROJECT_ID")
                             .value(cvProjectId)
                             .build(),
-                        // Azure Custom Vision - Iteration ID
-                        ServiceTemplateContainerEnvsArgs.builder()
+                        ServiceTemplateContainerEnvArgs.builder()
                             .name("AZURE_CV_ITERATION_ID")
                             .value(cvIterationId)
                             .build())
