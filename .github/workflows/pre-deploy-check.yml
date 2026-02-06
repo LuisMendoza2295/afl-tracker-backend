@@ -74,9 +74,11 @@ jobs:
               ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
               ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
               ARM_OIDC_TOKEN: ${{ steps.azure-login.outputs.token }}
-              PULUMI_CONFIG_PASSTHROUGH: | 
+              PULUMI_CONFIG_PASSTHROUGH: |
+                afl-tracker-backend:azure-cv-project-id=${{ vars.AZURE_CV_PROJECT_ID }},\
+                afl-tracker-backend:azure-cv-iteration-id=${{ vars.AZURE_CV_ITERATION_ID }},\
+                afl-tracker-backend:app-image=${{ inputs.image_uri }},\
                 gcp:project=${{ vars.GCP_PROJECT_ID }},\
                 gcp:region=${{ vars.GCP_REGION }},\
                 azure-native:subscriptionId=${{ vars.AZURE_SUBSCRIPTION_ID }},\
-                azure-native:location=${{ vars.AZURE_LOCATION }},\
-                app-image=${{ inputs.image_uri }}
+                azure-native:location=${{ vars.AZURE_LOCATION }}
