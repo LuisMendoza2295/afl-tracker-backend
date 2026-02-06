@@ -67,5 +67,5 @@ jobs:
               ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
               ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
               ARM_OIDC_TOKEN: ${{ steps.azure-login.outputs.token }}
-              PULUMI_CONFIG_PASSTHROUGH: | 
-                app-image=${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/afl-tracker-repo/afl-tracker-backend:${GITHUB_SHA}
+              PULUMI_CONFIG_PASSTHROUGH: |
+                afl-tracker-backend:app-image=${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/afl-tracker-repo/afl-tracker-backend:${{ github.sha }}

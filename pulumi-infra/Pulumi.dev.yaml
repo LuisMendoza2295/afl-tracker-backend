@@ -7,5 +7,4 @@ config:
   afl-tracker-backend:cloudRunServiceName: afl-tracker-backend-service
   afl-tracker-backend:storageBucketName: afl-tracker-storage-bucket
   afl-tracker-backend:azure-cv-project-id: 6c9d6bbd-9e3a-43d0-b436-80667bb67a7
-  afl-tracker-backend:azure-cv-iteration-id:
-  afl-tracker-backend:app-image: latest
+  afl-tracker-backend:azure-cv-iteration-id: AfL-Logo-Model-Obj-Detect-v1
