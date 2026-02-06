@@ -7,8 +7,11 @@ import com.pulumi.Pulumi;
 import com.pulumi.core.Output;
 import com.pulumi.resources.StackReference;
 import com.pulumi.resources.StackReferenceArgs;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class App {
+  private static final Logger logger = LoggerFactory.getLogger(App.class);
   public static void main(String[] args) {
     Pulumi.run(ctx -> {
       String projectId = ctx.config("gcp").require("project");
@@ -51,12 +54,12 @@ public class App {
       var latestImage = Output.format("%s/afl-tracker-backend:latest", gcpRepositoryUrl);
       var appImage = ctx.config().get("app-image")
           .map(img -> {
-            System.out.println("[DEBUG] Using app-image from config: " + img);
+            logger.info("Using app-image from config: {}", img);
             return img;
           })
           .map(Output::of)
           .orElseGet(() -> {
-            System.out.println("[DEBUG] Using default app-image: :latest");
+            logger.info("Using default app-image: :latest");
             return latestImage;
           });
       ctx.export("APP_IMAGE", appImage);

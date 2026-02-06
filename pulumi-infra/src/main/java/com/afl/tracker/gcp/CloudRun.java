@@ -16,8 +16,11 @@ import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateVpcAccessArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTemplateVpcAccessNetworkInterfaceArgs;
 import com.pulumi.gcp.cloudrunv2.inputs.ServiceTrafficArgs;
 import com.pulumi.resources.CustomResourceOptions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class CloudRun {
+  private static final Logger logger = LoggerFactory.getLogger(CloudRun.class);
 
   public static Service create(
       Context ctx,
@@ -34,11 +37,11 @@ public class CloudRun {
     
     // Read Custom Vision Project ID from config (persistent - doesn't change often)
     String cvProjectId = ctx.config().require("azure-cv-project-id");
-    System.out.println("[DEBUG] Using azure-cv-project-id: " + cvProjectId);
+    logger.info("Using azure-cv-project-id: {}", cvProjectId);
     
     // Read Custom Vision Iteration ID from config (set by PULUMI_CONFIG_PASSTHROUGH in CI/CD)
     String cvIterationId = ctx.config().require("azure-cv-iteration-id");
-    System.out.println("[DEBUG] Using azure-cv-iteration-id: " + cvIterationId);
+    logger.info("Using azure-cv-iteration-id: {}", cvIterationId);
     
     // Get Custom Vision credentials from Pulumi resource
     Output<String> cvPredictionEndpoint = customVision.getPredictionEndpoint();
