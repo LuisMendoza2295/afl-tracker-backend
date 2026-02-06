@@ -35,11 +35,8 @@ public class CloudRun {
     // Read Custom Vision Project ID from config (persistent - doesn't change often)
     String cvProjectId = ctx.config().require("azure-cv-project-id");
     
-    // Read Custom Vision Iteration ID from environment variable (ephemeral - changes with each model update)
-    String cvIterationId = System.getenv("AZURE_CV_ITERATION_ID");
-    if (cvIterationId == null || cvIterationId.isEmpty()) {
-      throw new IllegalStateException("AZURE_CV_ITERATION_ID environment variable must be set");
-    }
+    // Read Custom Vision Iteration ID from config (set dynamically by CI/CD)
+    String cvIterationId = ctx.config().require("azure-cv-iteration-id");
     
     // Get Custom Vision credentials from Pulumi resource
     Output<String> cvPredictionEndpoint = customVision.getPredictionEndpoint();

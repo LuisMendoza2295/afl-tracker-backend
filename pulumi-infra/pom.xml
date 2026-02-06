@@ -98,10 +98,6 @@
                 <configuration>
                     <mainClass>${mainClass}</mainClass>
                     <commandlineArgs>${mainArgs}</commandlineArgs>
-                    <environmentVariables>
-                        <AZURE_CV_ITERATION_ID>${env.AZURE_CV_ITERATION_ID}</AZURE_CV_ITERATION_ID>
-                        <APP_IMAGE>${env.APP_IMAGE}</APP_IMAGE>
-                    </environmentVariables>
                 </configuration>
             </plugin>
             <plugin>

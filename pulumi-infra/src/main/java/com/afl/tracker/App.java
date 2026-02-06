@@ -52,11 +52,10 @@ public class App {
       // ===== Cloud Run Service =====
       
       // Create Cloud Run Service with Custom Vision configuration
-      // Read app-image from environment variable, fallback to :latest for local dev
-      String appImageEnv = System.getenv("APP_IMAGE");
-      Output<String> appImage = appImageEnv != null && !appImageEnv.isEmpty()
-          ? Output.of(appImageEnv)
-          : Output.format("%s/afl-tracker-backend:latest", gcpRepositoryUrl);
+      // Read app-image from config (set dynamically by CI/CD), fallback to :latest for local dev
+      Output<String> appImage = ctx.config().get("app-image")
+          .map(Output::of)
+          .orElse(Output.format("%s/afl-tracker-backend:latest", gcpRepositoryUrl));
       ctx.export("APP_IMAGE", appImage);
       
       // CloudRun handles Custom Vision config (env vars or Pulumi resource)
