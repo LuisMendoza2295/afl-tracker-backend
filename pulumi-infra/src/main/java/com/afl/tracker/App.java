@@ -46,22 +46,18 @@ public class App {
       ctx.export("AZURE_CV_TRAINING_KEY", customVision.getTrainingKey());
       ctx.export("AZURE_CV_PREDICTION_KEY", customVision.getPredictionKey());
 
-      // Use prediction key from Azure (already marked as secret)
-      Output<String> cvPredictionKeySecret = customVision.getPredictionKey();
-
-      // ===== Cloud Run Service =====
-      
       // Create Cloud Run Service with Custom Vision configuration
       // Read app-image from config (set by PULUMI_CONFIG_PASSTHROUGH in CI/CD), fallback to :latest
-      Output<String> appImage = ctx.config().get("app-image")
+      var latestImage = Output.format("%s/afl-tracker-backend:latest", gcpRepositoryUrl);
+      var appImage = ctx.config().get("app-image")
           .map(img -> {
             System.out.println("[DEBUG] Using app-image from config: " + img);
-            return Output.of(img);
+            return img;
           })
+          .map(Output::of)
           .orElseGet(() -> {
-            String defaultImage = Output.format("%s/afl-tracker-backend:latest", gcpRepositoryUrl).apply(s -> s).join();
-            System.out.println("[DEBUG] Using default app-image: " + defaultImage);
-            return Output.format("%s/afl-tracker-backend:latest", gcpRepositoryUrl);
+            System.out.println("[DEBUG] Using default app-image: :latest");
+            return latestImage;
           });
       ctx.export("APP_IMAGE", appImage);
       
