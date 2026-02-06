@@ -34,18 +34,11 @@ public class CloudRun {
     
     // Read Custom Vision Project ID from config (persistent - doesn't change often)
     String cvProjectId = ctx.config().require("azure-cv-project-id");
+    System.out.println("[DEBUG] Using azure-cv-project-id: " + cvProjectId);
     
-    // Read Custom Vision Iteration ID from PULUMI_CONFIG or config (set dynamically by CI/CD)
-    String cvIterationId = getPulumiConfigValue("afl-tracker-backend:azure-cv-iteration-id");
-    if (cvIterationId != null && !cvIterationId.isEmpty()) {
-      System.out.println("[DEBUG] Using azure-cv-iteration-id from PULUMI_CONFIG: " + cvIterationId);
-    } else {
-      cvIterationId = ctx.config().get("azure-cv-iteration-id").orElse(null);
-      if (cvIterationId == null || cvIterationId.isEmpty()) {
-        throw new IllegalStateException("azure-cv-iteration-id must be set via PULUMI_CONFIG or Pulumi config");
-      }
-      System.out.println("[DEBUG] Using azure-cv-iteration-id from Pulumi config: " + cvIterationId);
-    }
+    // Read Custom Vision Iteration ID from config (set by PULUMI_CONFIG_PASSTHROUGH in CI/CD)
+    String cvIterationId = ctx.config().require("azure-cv-iteration-id");
+    System.out.println("[DEBUG] Using azure-cv-iteration-id: " + cvIterationId);
     
     // Get Custom Vision credentials from Pulumi resource
     Output<String> cvPredictionEndpoint = customVision.getPredictionEndpoint();
@@ -117,35 +110,5 @@ public class CloudRun {
 
     assert publicAccessIam != null;
     return cloudRunService;
-  }
-  
-  /**
-   * Parse PULUMI_CONFIG environment variable to get config value.
-   * PULUMI_CONFIG is a JSON object like: {"key": "value", ...}
-   */
-  private static String getPulumiConfigValue(String key) {
-    String pulumiConfig = System.getenv("PULUMI_CONFIG");
-    if (pulumiConfig == null || pulumiConfig.isEmpty()) {
-      return null;
-    }
-    
-    // Simple JSON parsing without external dependencies
-    String searchKey = "\"" + key + "\":";
-    int keyIndex = pulumiConfig.indexOf(searchKey);
-    if (keyIndex == -1) {
-      return null;
-    }
-    
-    int valueStart = pulumiConfig.indexOf("\"", keyIndex + searchKey.length());
-    if (valueStart == -1) {
-      return null;
-    }
-    
-    int valueEnd = pulumiConfig.indexOf("\"", valueStart + 1);
-    if (valueEnd == -1) {
-      return null;
-    }
-    
-    return pulumiConfig.substring(valueStart + 1, valueEnd);
   }
 }

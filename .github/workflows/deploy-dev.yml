@@ -68,4 +68,6 @@ jobs:
               ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
               ARM_OIDC_TOKEN: ${{ steps.azure-login.outputs.token }}
               PULUMI_CONFIG_PASSTHROUGH: |
+                afl-tracker-backend:azure-cv-project-id=${{ vars.AZURE_CV_PROJECT_ID }},\
+                afl-tracker-backend:azure-cv-iteration-id=${{ vars.AZURE_CV_ITERATION_ID }},\
                 afl-tracker-backend:app-image=${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/afl-tracker-repo/afl-tracker-backend:${{ github.sha }}
