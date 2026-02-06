@@ -3,10 +3,10 @@ run-name: Deploy AFL tracker backend by @${{ github.actor }} 🚀
 on: 
     workflow_dispatch:
       inputs:
-        deploy:
-          description: 'Deploy to dev environment?'
+        image_tag:
+          description: 'Image tag (SHA or version) to deploy'
           required: true
-          default: 'false'
+          default: 'latest'
 
 concurrency:
   group: deploy-dev
@@ -59,7 +59,7 @@ jobs:
             pulumi stack select dev
             pulumi config set afl-tracker-backend:azure-cv-project-id ${{ vars.AZURE_CV_PROJECT_ID }}
             pulumi config set afl-tracker-backend:azure-cv-iteration-id ${{ vars.AZURE_CV_ITERATION_ID }}
-            pulumi config set afl-tracker-backend:app-image ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/afl-tracker-repo/afl-tracker-backend:${{ github.sha }}
+            pulumi config set afl-tracker-backend:app-image ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/afl-tracker-repo/afl-tracker-backend:${{ inputs.image_tag }}
           env:
             PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 
