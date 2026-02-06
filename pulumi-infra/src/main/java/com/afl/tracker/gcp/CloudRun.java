@@ -32,11 +32,16 @@ public class CloudRun {
     String region = ctx.config("gcp").require("region");
     String projectId = ctx.config("gcp").require("project");
     
-    // Read Custom Vision config (tightly coupled to Cloud Run)
+    // Read Custom Vision Project ID from config (persistent - doesn't change often)
     String cvProjectId = ctx.config().require("azure-cv-project-id");
-    String cvIterationId = ctx.config().require("azure-cv-iteration-id");
     
-    // Extract Custom Vision credentials
+    // Read Custom Vision Iteration ID from environment variable (ephemeral - changes with each model update)
+    String cvIterationId = System.getenv("AZURE_CV_ITERATION_ID");
+    if (cvIterationId == null || cvIterationId.isEmpty()) {
+      throw new IllegalStateException("AZURE_CV_ITERATION_ID environment variable must be set");
+    }
+    
+    // Get Custom Vision credentials from Pulumi resource
     Output<String> cvPredictionEndpoint = customVision.getPredictionEndpoint();
     Output<String> cvPredictionKey = customVision.getPredictionKey();
 
