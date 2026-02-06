@@ -55,20 +55,15 @@ jobs:
               stack-name: dev
               work-dir: ./pulumi-infra
               config-map: |
-                gcp:project:
-                  value: ${{ vars.GCP_PROJECT_ID }}
-                gcp:region:
-                  value: ${{ vars.GCP_REGION }}
-                azure-native:subscriptionId:
-                  value: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-                azure-native:location:
-                  value: ${{ vars.AZURE_LOCATION }}
-                afl-tracker-backend:azure-cv-project-id:
-                  value: ${{ vars.AZURE_CV_PROJECT_ID }}
-                afl-tracker-backend:azure-cv-iteration-id:
-                  value: ${{ vars.AZURE_CV_ITERATION_ID }}
-                afl-tracker-backend:app-image:
-                  value: ${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/afl-tracker-repo/afl-tracker-backend:${{ github.sha }}
+                {
+                  "gcp:project": { "value": "${{ vars.GCP_PROJECT_ID }}" },
+                  "gcp:region": { "value": "${{ vars.GCP_REGION }}" },
+                  "azure-native:subscriptionId": { "value": "${{ vars.AZURE_SUBSCRIPTION_ID }}" },
+                  "azure-native:location": { "value": "${{ vars.AZURE_LOCATION }}" },
+                  "afl-tracker-backend:azure-cv-project-id": { "value": "${{ vars.AZURE_CV_PROJECT_ID }}" },
+                  "afl-tracker-backend:azure-cv-iteration-id": { "value": "${{ vars.AZURE_CV_ITERATION_ID }}" },
+                  "afl-tracker-backend:app-image": { "value": "${{ vars.GCP_REGION }}-docker.pkg.dev/${{ vars.GCP_PROJECT_ID }}/afl-tracker-repo/afl-tracker-backend:${{ github.sha }}" }
+                }
           env:
               PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
               GCP_ACCESS_TOKEN: ${{ steps.gcloud-auth.outputs.access_token }}
