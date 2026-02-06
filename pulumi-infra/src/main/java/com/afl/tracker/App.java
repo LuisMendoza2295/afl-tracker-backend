@@ -37,13 +37,6 @@ public class App {
       ctx.export("STORAGE_BUCKET_URL", storageBucket.url());
       ctx.export("STORAGE_BUCKET_NAME", storageBucket.name());
 
-      // Create Cloud Run Service
-      var latestImage = Output.format("%s/afl-tracker-backend:latest", gcpRepositoryUrl);
-      var appImage = ctx.config().get("app-image").map(Output::of).orElse(latestImage);
-      ctx.export("APP_IMAGE", appImage);
-      var cloudRunService = CloudRun.create(ctx, appImage, gcpRuntimeSAEmail, gcpVpcName, gcpPrivateSubnetName);
-      ctx.export("CLOUD_RUN_URL", cloudRunService.uri());
-
       // ===== Azure Resources =====
       
       // Create Custom Vision (Training + Prediction)
@@ -52,6 +45,26 @@ public class App {
       ctx.export("AZURE_CV_PREDICTION_ENDPOINT", customVision.getPredictionEndpoint());
       ctx.export("AZURE_CV_TRAINING_KEY", customVision.getTrainingKey());
       ctx.export("AZURE_CV_PREDICTION_KEY", customVision.getPredictionKey());
+
+      // Create Cloud Run Service with Custom Vision configuration
+      // Read app-image from config (set by PULUMI_CONFIG_PASSTHROUGH in CI/CD), fallback to :latest
+      var latestImage = Output.format("%s/afl-tracker-backend:latest", gcpRepositoryUrl);
+      var appImage = ctx.config().get("app-image")
+          .map(Output::of)
+          .orElse(latestImage);
+      ctx.export("APP_IMAGE", appImage);
+      
+      // CloudRun handles Custom Vision config (env vars or Pulumi resource)
+      var cloudRunService = CloudRun.create(
+          ctx,
+          appImage,
+          gcpRuntimeSAEmail,
+          gcpVpcName,
+          gcpPrivateSubnetName,
+          storageBucket.name(),
+          customVision);
+      
+      ctx.export("CLOUD_RUN_URL", cloudRunService.uri());
     });
   }
 }

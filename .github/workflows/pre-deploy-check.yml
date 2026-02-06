@@ -60,6 +60,16 @@ jobs:
             mkdir -p ~/.m2
             cp settings.xml ~/.m2/settings.xml
 
+        - name: Configure Pulumi Stack
+          working-directory: ./pulumi-infra
+          run: |
+            pulumi stack select dev
+            pulumi config set afl-tracker-backend:azure-cv-project-id ${{ vars.AZURE_CV_PROJECT_ID }}
+            pulumi config set afl-tracker-backend:azure-cv-iteration-id ${{ vars.AZURE_CV_ITERATION_ID }}
+            pulumi config set afl-tracker-backend:app-image ${{ inputs.image_uri }}
+          env:
+            PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
+
         - name: Pulumi Pre-Deploy Check (Preview)
           uses: pulumi/actions@v6
           with:
@@ -74,9 +84,3 @@ jobs:
               ARM_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
               ARM_SUBSCRIPTION_ID: ${{ vars.AZURE_SUBSCRIPTION_ID }}
               ARM_OIDC_TOKEN: ${{ steps.azure-login.outputs.token }}
-              PULUMI_CONFIG_PASSTHROUGH: | 
-                gcp:project=${{ vars.GCP_PROJECT_ID }},\
-                gcp:region=${{ vars.GCP_REGION }},\
-                azure-native:subscriptionId=${{ vars.AZURE_SUBSCRIPTION_ID }},\
-                azure-native:location=${{ vars.AZURE_LOCATION }},\
-                app-image=${{ inputs.image_uri }}

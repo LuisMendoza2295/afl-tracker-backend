@@ -10,6 +10,8 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 
+import com.afl.tracker.domain.model.VisionInfo;
+import com.afl.tracker.domain.port.VisionPort;
 import com.google.cloud.storage.Blob;
 import com.google.cloud.storage.BlobId;
 import com.google.cloud.storage.BlobInfo;
@@ -28,7 +30,7 @@ public class TrackerService {
     Storage storage;
 
     @Inject
-    VisionService visionService;
+    VisionPort visionPort;
 
     @ConfigProperty(name = "application.gcs.bucket-name")
     String bucketName;
@@ -45,9 +47,13 @@ public class TrackerService {
 
     public BlobInfo uploadFile(FileUpload file) {
         try {
-            // Validate logo presence before uploading
-            boolean logoDetected = visionService.validateLogoPresence(file.uploadedFile(), file.fileName());
-            if (!logoDetected) {
+            // Get vision analysis
+            VisionInfo visionInfo = visionPort.getVisionInfo(file.uploadedFile());
+            
+            // Validate logo presence using domain logic
+            if (!visionInfo.isLogo()) {
+                logger.warn(String.format("Logo not detected in %s (confidence: %.2f%%)",
+                        file.fileName(), visionInfo.confidence() * 100));
                 throw new IllegalArgumentException("Logo not detected in image. Please upload an image containing the AFL logo.");
             }
 
@@ -64,6 +70,10 @@ public class TrackerService {
             logger.error("Error uploading file", e);
             throw new RuntimeException("File upload failed", e);
         }
+    }
+
+    public VisionInfo getVisionInfo(FileUpload file) {   
+        return visionPort.getVisionInfo(file.uploadedFile());
     }
 
     public Blob downloadFile(String uuid) {
