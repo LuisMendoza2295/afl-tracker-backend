@@ -26,6 +26,7 @@ public class CloudRun {
       Output<String> vpcName,
       Output<String> privateSubnetName,
       Output<String> storageBucketName,
+      String databaseName,
       CustomVision customVision) {
 
     String serviceName = ctx.config().require("cloudRunServiceName");
@@ -70,6 +71,10 @@ public class CloudRun {
                         ServiceTemplateContainerEnvArgs.builder()
                             .name("GCS_BUCKET_NAME")
                             .value(storageBucketName)
+                            .build(),
+                        ServiceTemplateContainerEnvArgs.builder()
+                            .name("FIRESTORE_DATABASE_ID")
+                            .value(databaseName)
                             .build(),
                         ServiceTemplateContainerEnvArgs.builder()
                             .name("AZURE_CV_PREDICTION_ENDPOINT")

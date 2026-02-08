@@ -67,6 +67,7 @@ jobs:
             pulumi config set afl-tracker-backend:azure-cv-project-id ${{ vars.AZURE_CV_PROJECT_ID }}
             pulumi config set afl-tracker-backend:azure-cv-iteration-id ${{ vars.AZURE_CV_ITERATION_ID }}
             pulumi config set afl-tracker-backend:app-image ${{ inputs.image_uri }}
+            pulumi config set afl-tracker-backend:database-name ${{ vars.FIRESTORE_DATABASE_NAME }}
           env:
             PULUMI_ACCESS_TOKEN: ${{ secrets.PULUMI_ACCESS_TOKEN }}
 

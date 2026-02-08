@@ -18,7 +18,6 @@ public class App {
       // Reference platform infrastructure stack
       var platformStack = new StackReference(infraStackName + "/dev");
       
-      
       // Get GCP platform outputs using .output() not .requireOutput()
       var gcpRuntimeSAEmail = platformStack.output("gcpBackendRuntimeSAEmail").applyValue(v -> v.toString());
       var gcpArtifactRegistryName = platformStack.output("gcpArtifactRegistryName").applyValue(v -> v.toString());
@@ -31,7 +30,13 @@ public class App {
       ctx.export("REPOSITORY_URL", gcpRepositoryUrl);
 
       // ===== GCP Resources =====
-      
+
+      // Read database-name from config (default to "default" if not set)
+      String databaseName = ctx.config().require("database-name");
+
+      // Create Firestore Database (Application-owned)
+      com.afl.tracker.gcp.Firestore.create(ctx, databaseName);
+
       // Create Storage Bucket
       var storageBucket = Storage.create(ctx, gcpRuntimeSAEmail);
       ctx.export("STORAGE_BUCKET_URL", storageBucket.url());
@@ -62,6 +67,7 @@ public class App {
           gcpVpcName,
           gcpPrivateSubnetName,
           storageBucket.name(),
+          databaseName,
           customVision);
       
       ctx.export("CLOUD_RUN_URL", cloudRunService.uri());
