@@ -7,8 +7,8 @@ import com.afl.tracker.domain.model.ImageInfo;
 public class ImageResponseDto {
     private String id;
     private String url;
-    private String latitude;
-    private String longitude;
+    private Double latitude;
+    private Double longitude;
     private String uploadedByName;
     private String uploadedByEmail;
     private Instant uploadedAt;
@@ -19,8 +19,8 @@ public class ImageResponseDto {
         dto.url = imageInfo.url();
         
         if (imageInfo.location() != null) {
-            dto.latitude = imageInfo.location().latitude().toString();
-            dto.longitude = imageInfo.location().longitude().toString();
+            dto.latitude = imageInfo.location().latitude();
+            dto.longitude = imageInfo.location().longitude();
         }
         
         if (imageInfo.uploadedBy() != null) {
@@ -43,11 +43,11 @@ public class ImageResponseDto {
         return url;
     }
 
-    public String getLatitude() {
+    public Double getLatitude() {
         return latitude;
     }
 
-    public String getLongitude() {
+    public Double getLongitude() {
         return longitude;
     }
 
