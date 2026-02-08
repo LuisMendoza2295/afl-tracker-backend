@@ -1,22 +1,25 @@
-package com.afl.tracker.controller;
+package com.afl.tracker.web;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.multipart.FileUpload;
 
-import com.afl.tracker.controller.dto.DetectionResultDto;
+import com.afl.tracker.domain.aggregate.TrackerService;
+import com.afl.tracker.domain.model.ImageInfo;
 import com.afl.tracker.domain.model.VisionInfo;
-import com.afl.tracker.service.TrackerService;
-import com.google.cloud.storage.Blob;
-import com.google.cloud.storage.BlobInfo;
+import com.afl.tracker.domain.model.valueobj.Location;
+import com.afl.tracker.web.annotation.Authenticated;
+import com.afl.tracker.web.context.AuthContext;
+import com.afl.tracker.web.dto.DetectionResultDto;
+import com.afl.tracker.web.dto.ImageResponseDto;
 
 import jakarta.inject.Inject;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
-import jakarta.ws.rs.PathParam;
 import jakarta.ws.rs.Produces;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -26,31 +29,41 @@ public class TrackerResource {
 
     @Inject
     TrackerService trackerService;
+    
+    @Inject
+    AuthContext authContext;
 
     @GET
     @Path("/images")
     @Produces(MediaType.APPLICATION_JSON)
     public Response getImages() {
-        List<String> images = trackerService.getImages();
+        List<ImageResponseDto> images = trackerService.getAllImages()
+                .stream()
+                .map(ImageResponseDto::from)
+                .collect(Collectors.toList());
         return Response.ok().entity(images).build();
     }
 
     @POST
+    @Authenticated
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Path("/images/upload")
-    public Response hello(@RestForm("file") FileUpload file) {
+    public Response uploadImage(
+            @RestForm("file") FileUpload file,
+            @RestForm("latitude") String latitude,
+            @RestForm("longitude") String longitude) {
         try {
-            BlobInfo blobInfo = trackerService.uploadFile(file);
+            Location location = new Location(Double.parseDouble(latitude), Double.parseDouble(longitude));
+            ImageInfo imageInfo = trackerService.uploadFile(authContext.getUserInfo(), location, file);
+            
             return Response.status(Response.Status.CREATED)
-                    .entity("File uploaded successfully: " + blobInfo.getName())
+                    .entity(ImageResponseDto.from(imageInfo))
                     .build();
         } catch (IllegalArgumentException e) {
-            // Logo validation failed
             return Response.status(Response.Status.BAD_REQUEST)
                     .entity(e.getMessage())
                     .build();
         } catch (Exception e) {
-            // Other errors
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("File upload failed: " + e.getMessage())
                     .build();
@@ -64,18 +77,5 @@ public class TrackerResource {
         VisionInfo visionInfo = trackerService.getVisionInfo(file);
         DetectionResultDto result = DetectionResultDto.from(visionInfo, file.fileName());
         return Response.ok().entity(result).build();
-    }
-
-    @GET
-    @Path("/images/download/{uuid}")
-    @Produces(MediaType.APPLICATION_OCTET_STREAM)
-    public Response downloadFile(@PathParam("uuid") String uuid) {
-        Blob blob = trackerService.downloadFile(uuid);
-        if (blob == null) {
-            return Response.status(Response.Status.NOT_FOUND).entity("File not found: " + uuid).build();
-        }
-        return Response.ok(blob.getContent())
-                .header("Content-Disposition", "attachment; filename=\"" + blob.getName() + "\"")
-                .build();
     }
 }

@@ -1,4 +1,4 @@
-package com.afl.tracker.adapter;
+package com.afl.tracker.adapter.vision;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -8,9 +8,9 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.logging.Logger;
 
-import com.afl.tracker.adapter.client.CustomVisionClient;
-import com.afl.tracker.adapter.dto.CustomVisionResponseDto;
-import com.afl.tracker.adapter.mapper.VisionMapper;
+import com.afl.tracker.adapter.vision.client.CustomVisionClient;
+import com.afl.tracker.adapter.vision.dto.CustomVisionResponseDto;
+import com.afl.tracker.adapter.vision.mapper.VisionMapper;
 import com.afl.tracker.domain.model.VisionInfo;
 import com.afl.tracker.domain.port.VisionPort;
 

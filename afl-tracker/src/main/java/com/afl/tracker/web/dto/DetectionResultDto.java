@@ -1,4 +1,4 @@
-package com.afl.tracker.controller.dto;
+package com.afl.tracker.web.dto;
 
 import java.util.UUID;
 
