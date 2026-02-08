@@ -15,6 +15,7 @@ public class Firestore {
         return new Database(databaseName,
             DatabaseArgs.builder()
                 .project(projectId)
+                .name(String.format("projects/%s/databases/%s", projectId, databaseName))
                 .locationId(region)
                 .type("FIRESTORE_NATIVE")
                 .build());
