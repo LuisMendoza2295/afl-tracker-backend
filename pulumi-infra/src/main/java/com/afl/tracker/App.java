@@ -31,7 +31,7 @@ public class App {
 
       // ===== GCP Resources =====
 
-      // Read database-name from config (default to "default" if not set)
+      // Read database-name from config
       String databaseName = ctx.config().require("database-name");
 
       // Create Firestore Database (Application-owned)
