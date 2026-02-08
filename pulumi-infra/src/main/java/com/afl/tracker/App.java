@@ -32,6 +32,9 @@ public class App {
 
       // ===== GCP Resources =====
       
+      // Enable Firestore and grant access to backend SA
+      com.afl.tracker.gcp.Firestore.enableAndGrantAccess(ctx, gcpRuntimeSAEmail);
+      
       // Create Storage Bucket
       var storageBucket = Storage.create(ctx, gcpRuntimeSAEmail);
       ctx.export("STORAGE_BUCKET_URL", storageBucket.url());

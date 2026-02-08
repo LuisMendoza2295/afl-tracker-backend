@@ -1,8 +1,8 @@
-package com.afl.tracker.adapter.client;
+package com.afl.tracker.adapter.vision.client;
 
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
-import com.afl.tracker.adapter.dto.CustomVisionResponseDto;
+import com.afl.tracker.adapter.vision.dto.CustomVisionResponseDto;
 
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.HeaderParam;

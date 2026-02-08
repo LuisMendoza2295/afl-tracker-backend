@@ -1,4 +1,4 @@
-package com.afl.tracker.adapter.dto;
+package com.afl.tracker.adapter.vision.dto;
 
 import java.util.List;
 

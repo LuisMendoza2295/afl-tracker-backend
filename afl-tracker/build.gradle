@@ -20,6 +20,7 @@ dependencies {
 
     implementation 'io.quarkiverse.googlecloudservices:quarkus-google-cloud-secret-manager'
     implementation 'io.quarkiverse.googlecloudservices:quarkus-google-cloud-storage'
+    implementation 'io.quarkiverse.googlecloudservices:quarkus-google-cloud-firestore'
 
     // MicroProfile REST Client for Azure Custom Vision API
     implementation 'io.quarkus:quarkus-rest-client'

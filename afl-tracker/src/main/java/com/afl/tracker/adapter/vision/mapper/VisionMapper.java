@@ -1,10 +1,10 @@
-package com.afl.tracker.adapter.mapper;
+package com.afl.tracker.adapter.vision.mapper;
 
 import java.util.Optional;
 import java.util.UUID;
 
-import com.afl.tracker.adapter.dto.CustomVisionResponseDto;
-import com.afl.tracker.adapter.dto.PredictionDto;
+import com.afl.tracker.adapter.vision.dto.CustomVisionResponseDto;
+import com.afl.tracker.adapter.vision.dto.PredictionDto;
 import com.afl.tracker.domain.model.VisionInfo;
 
 import jakarta.enterprise.context.ApplicationScoped;
