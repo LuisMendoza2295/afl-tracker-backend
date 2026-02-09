@@ -49,7 +49,14 @@ public interface GoogleUserInfoClient {
     }
     
     class Thumbnails {
+        @com.fasterxml.jackson.annotation.JsonProperty("default")
         public Thumbnail defaultThumbnail;
+        
+        @com.fasterxml.jackson.annotation.JsonProperty("medium")
+        public Thumbnail medium;
+
+        @com.fasterxml.jackson.annotation.JsonProperty("high")
+        public Thumbnail high;
         
         public static class Thumbnail {
             public String url;

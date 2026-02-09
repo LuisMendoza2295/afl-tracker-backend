@@ -11,6 +11,7 @@ public class ImageResponseDto {
     private Double longitude;
     private String uploadedByName;
     private String uploadedByEmail;
+    private String uploadedByPhotoUrl;
     private Instant uploadedAt;
 
     public static ImageResponseDto from(ImageInfo imageInfo) {
@@ -26,6 +27,7 @@ public class ImageResponseDto {
         if (imageInfo.uploadedBy() != null) {
             dto.uploadedByName = imageInfo.uploadedBy().name();
             dto.uploadedByEmail = imageInfo.uploadedBy().email();
+            dto.uploadedByPhotoUrl = imageInfo.uploadedBy().photoUrl();
         }
         
         if (imageInfo.uploadedAt() != null) {
@@ -57,6 +59,10 @@ public class ImageResponseDto {
 
     public String getUploadedByEmail() {
         return uploadedByEmail;
+    }
+
+    public String getUploadedByPhotoUrl() {
+        return uploadedByPhotoUrl;
     }
 
     public Instant getUploadedAt() {

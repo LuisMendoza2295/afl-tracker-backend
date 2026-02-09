@@ -54,6 +54,17 @@ public class AuthAdapter implements AuthPort {
                 GoogleUserInfoClient.YouTubeChannel channel = youtubeResponse.items.get(0);
                 GoogleUserInfoClient.ChannelSnippet snippet = channel.snippet;
                 
+                String photoUrl = null;
+                if (snippet.thumbnails != null) {
+                    if (snippet.thumbnails.high != null) {
+                        photoUrl = snippet.thumbnails.high.url;
+                    } else if (snippet.thumbnails.medium != null) {
+                        photoUrl = snippet.thumbnails.medium.url;
+                    } else if (snippet.thumbnails.defaultThumbnail != null) {
+                        photoUrl = snippet.thumbnails.defaultThumbnail.url;
+                    }
+                }
+                
                 // Get email from Google userinfo
                 GoogleUserInfoClient.UserInfo googleUser = userInfoClient.getUserInfo("Bearer " + token);
                 
@@ -61,6 +72,7 @@ public class AuthAdapter implements AuthPort {
                     channel.id,
                     snippet.title,
                     googleUser.email,
+                    photoUrl,
                     UserOrigin.YOUTUBE
                 );
             }
@@ -74,6 +86,7 @@ public class AuthAdapter implements AuthPort {
             googleUser.id,
             googleUser.name,
             googleUser.email,
+            googleUser.picture,
             UserOrigin.GOOGLE
         );
     }

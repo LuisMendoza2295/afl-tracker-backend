@@ -33,7 +33,7 @@ public class ImageInfoMapper {
   }
 
   public UserInfoDto toUserInfoDto(UserInfo userInfo) {
-    return new UserInfoDto(userInfo.id(), userInfo.name(), userInfo.email(), userInfo.origin().name());
+    return new UserInfoDto(userInfo.id(), userInfo.name(), userInfo.email(), userInfo.photoUrl(), userInfo.origin().name());
   }
 
   public ImageInfo toImageInfo(ImageMetadataDto metadataDto) {
@@ -48,7 +48,7 @@ public class ImageInfoMapper {
   }
 
   public UserInfo toUserInfo(UserInfoDto userInfoDto) {
-    return new UserInfo(userInfoDto.id(), userInfoDto.name(), userInfoDto.email(), UserOrigin.valueOf(userInfoDto.origin()));
+    return new UserInfo(userInfoDto.id(), userInfoDto.name(), userInfoDto.email(), userInfoDto.photoUrl(), UserOrigin.valueOf(userInfoDto.origin()));
   }
 
   public Location toLocation(LocationDto locationDto) {
