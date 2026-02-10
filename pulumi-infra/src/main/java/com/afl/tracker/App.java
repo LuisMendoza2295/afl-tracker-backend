@@ -1,12 +1,11 @@
 package com.afl.tracker;
 
+import com.afl.tracker.azure.CustomVision;
 import com.afl.tracker.gcp.CloudRun;
 import com.afl.tracker.gcp.Storage;
-import com.afl.tracker.azure.CustomVision;
 import com.pulumi.Pulumi;
 import com.pulumi.core.Output;
 import com.pulumi.resources.StackReference;
-import com.pulumi.resources.StackReferenceArgs;
 
 public class App {
   public static void main(String[] args) {
